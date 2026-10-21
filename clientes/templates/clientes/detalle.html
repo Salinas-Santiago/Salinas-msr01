@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Cliente{% endblock %}
+{% block content %}
+<h1>Cliente #{{ cliente.pk }}</h1>
+<dl>
+  <dt>Nombre</dt><dd>{{ cliente.nombre }}</dd>
+  <dt>Correo</dt><dd>{{ cliente.correo }}</dd>
+</dl>
+<p><a href="{% url 'clientes:lista' %}">Volver a la lista</a></p>
+{% endblock %}

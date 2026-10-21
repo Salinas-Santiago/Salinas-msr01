@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Proveedores{% endblock %}
+{% block content %}
+<h1>Proveedores</h1>
+<table>
+  <thead><tr><th>Nombre</th><th>Correo</th><th></th></tr></thead>
+  <tbody>
+  {% for o in proveedores %}
+    <tr><td>{{ o.nombre }}</td><td>{{ o.correo }}</td><td><a href="{% url 'proveedores:detalle' o.pk %}">Ver</a></td></tr>
+  {% empty %}
+    <tr><td colspan="3">Sin registros.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% if is_paginated %}
+<p>
+  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
+  P&aacute;gina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
+</p>
+{% endif %}
+<p><a href="{% url 'inicio' %}">Inicio</a></p>
+{% endblock %}
