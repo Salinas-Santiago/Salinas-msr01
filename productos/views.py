@@ -91,3 +91,15 @@ class ProductoDeleteView(LoginRequiredMixin, DeleteView):
             f'Producto "{nombre}" eliminado.'
         )
         return response
+
+# productos/views.py — actualizar el import al inicio:
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from core.mixins import LoginPermissionRequiredMixin
+
+class ProductoDeleteView(LoginPermissionRequiredMixin, DeleteView):
+    model               = Producto
+    template_name       = 'productos/eliminar.html'
+    pk_url_kwarg        = 'producto_id'
+    success_url         = reverse_lazy('productos:lista')
+    permission_required = 'productos.delete_producto'
+    # sin raise_exception
