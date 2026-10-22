@@ -18,8 +18,8 @@ class ProveedorListView(ListView):
 
 class ProveedorDetailView(DetailView):
     model = Proveedor
+    pk_url_kwarg = 'proveedor_id'
     template_name = 'proveedores/detalle.html'
-    context_object_name = 'proveedor'
 
 # proveedores/views.py — agregar imports al inicio:
 from django.contrib import messages

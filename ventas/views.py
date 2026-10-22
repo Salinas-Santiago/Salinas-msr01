@@ -20,9 +20,9 @@ class VentaListView(ListView):
 
 class VentaDetailView(DetailView):
     model = Venta
+    pk_url_kwarg = 'venta_id'
     template_name = 'ventas/detalle.html'
-    context_object_name = 'venta'
-
+    
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         filas = []

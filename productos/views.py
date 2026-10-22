@@ -18,9 +18,8 @@ class ProductoListView(ListView):
 
 class ProductoDetailView(DetailView):
     model = Producto
-    template_name = 'productos/detalle.html'
-    context_object_name = 'producto'
-
+    pk_url_kwarg = 'producto_id'
+    template_name = 'productos/detalle.html'   # el nombre real de tu archivo
 # productos/views.py — agregar los imports al inicio del archivo:
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin

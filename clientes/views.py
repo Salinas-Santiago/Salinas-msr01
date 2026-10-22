@@ -18,8 +18,8 @@ class ClienteListView(ListView):
 
 class ClienteDetailView(DetailView):
     model = Cliente
+    pk_url_kwarg = 'cliente_id'
     template_name = 'clientes/detalle.html'
-    context_object_name = 'cliente'
 
 # clientes/views.py — agregar imports al inicio:
 from django.contrib import messages
