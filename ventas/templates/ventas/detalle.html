@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block title %}Venta{% endblock %}
+{% block content %}
+<h1>Venta #{{ venta.pk }}</h1>
+<p>Cliente: {{ venta.cliente }}</p>
+<table>
+  <thead>
+    <tr><th>Producto</th><th>Cantidad</th><th>Precio unitario</th><th>Subtotal</th></tr>
+  </thead>
+  <tbody>
+  {% for f in filas %}
+    <tr>
+      <td>{{ f.producto }}</td>
+      <td>{{ f.cantidad }}</td>
+      <td>{{ f.precio_unitario|floatformat:"2u" }}</td>
+      <td>{{ f.subtotal|floatformat:"2u" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p><strong>Total: {{ total|floatformat:"2u" }}</strong></p>
+<p><a href="{% url 'ventas:lista' %}">Volver a la lista</a></p>
+{% endblock %}
