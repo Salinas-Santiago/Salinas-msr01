@@ -1,6 +1,39 @@
 /* static/erp_custom.css
-   Utilidades adicionales de Fable 5 AzulERP.
-   Las variables CSS principales están definidas en base.html.
+   Fable 5 · tema "escenario": rojo carmesí / negro / latón.
+   Las variables de color principales están definidas en base.html.
+*/
+
+/* ── FONDO DEL ERP (solo páginas con navbar del ERP, no el admin) ─────── */
+
+/* Modo día: papel cálido con luces rojas de escenario arriba */
+body:has(.erp-navbar) {
+    background:
+        radial-gradient(ellipse at 50% -15%, rgba(224,83,43,.30), transparent 55%),
+        radial-gradient(ellipse at 100% 0%,  rgba(163,32,28,.20), transparent 45%),
+        radial-gradient(ellipse at 0% 100%,  rgba(181,138,46,.16), transparent 50%),
+        linear-gradient(180deg, #F6F1EC 0%, #EBD9CF 100%) fixed;
+}
+
+/* Modo noche: negro con resplandor carmesí */
+[data-theme="dark"] body:has(.erp-navbar) {
+    background:
+        radial-gradient(ellipse at 50% -15%, rgba(224,83,43,.38), transparent 55%),
+        radial-gradient(ellipse at 100% 0%,  rgba(192,48,42,.25), transparent 45%),
+        radial-gradient(ellipse at 0% 100%,  rgba(212,165,60,.12), transparent 50%),
+        linear-gradient(180deg, #0E0809 0%, #050303 100%) fixed;
+}
+
+/* Opción B: usar la foto como fondo (static/img/fondo.jpg).
+   Descomenta este bloque para activarla.
+
+body:has(.erp-navbar) {
+    background:
+        linear-gradient(rgba(14,8,9,.78), rgba(14,8,9,.78)),
+        url("img/fondo.jpg") center / cover no-repeat fixed;
+}
+body:has(.erp-navbar) .erp-main h1,
+body:has(.erp-navbar) .erp-main h2,
+body:has(.erp-navbar) .erp-main > .container > p { color: #F2E6DF; }
 */
 
 /* Tarjetas clicables en la bienvenida */
@@ -26,30 +59,30 @@
 }
 
 
-/* ── JAZZMIN: Override de colores con Fable 5 AzulERP ─────────────────── */
+/* ── JAZZMIN: Override de colores con la paleta escenario ─────────────── */
 
-/* Sidebar color navy */
-.main-sidebar, .sidebar { background-color: #0A2342 !important; }
+/* Sidebar negro */
+.main-sidebar, .sidebar { background-color: #1C1214 !important; }
 
-/* Navbar color navy */
-.main-header.navbar { background-color: #0A2342 !important; }
+/* Navbar negro */
+.main-header.navbar { background-color: #1C1214 !important; }
 
 /* Brand / logo area */
-.brand-link { border-bottom: 1px solid #B8860B !important; }
-.brand-text  { color: #D4AF37 !important; font-weight: 700 !important; }
+.brand-link { border-bottom: 1px solid #B58A2E !important; }
+.brand-text  { color: #D4A53C !important; font-weight: 700 !important; }
 
 /* Sidebar links */
 .nav-sidebar .nav-link { color: rgba(255,255,255,.82) !important; }
 .nav-sidebar .nav-link:hover,
 .nav-sidebar .nav-link.active {
-    background-color: #1B4F8A !important;
+    background-color: #A3201C !important;
     color: #FFFFFF !important;
 }
 
-/* Accent: botones y badges en dorado */
+/* Accent: botones y badges en latón */
 .accent-navy .nav-sidebar .nav-link.active {
-    background-color: #B8860B !important;
+    background-color: #B58A2E !important;
 }
 
 /* Footer */
-.main-footer { border-top: 2px solid #B8860B; }
+.main-footer { border-top: 2px solid #A3201C; }
