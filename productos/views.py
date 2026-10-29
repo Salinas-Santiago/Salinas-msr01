@@ -1,25 +1,25 @@
-from django.shortcuts import render
-from django.views.generic import DetailView, ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
+from .forms import ProductoForm
 from .models import Producto
 
 
-def index(request):
-    return render(request, 'productos/index.html', {})
-
+# 2. VISTAS
 
 class ProductoListView(ListView):
     model = Producto
     template_name = 'productos/lista.html'
     context_object_name = 'productos'
     paginate_by = 20
-    ordering = ['pk']
 
 
 class ProductoDetailView(DetailView):
     model = Producto
     pk_url_kwarg = 'producto_id'
     template_name = 'productos/detalle.html'   # el nombre real de tu archivo
+    
 # productos/views.py — agregar los imports al inicio del archivo:
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin

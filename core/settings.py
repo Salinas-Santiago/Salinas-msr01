@@ -52,6 +52,7 @@ if not DEBUG and not TESTING:
 # ---------------------------------------------------------------------------
 # Aplicaciones
 # ---------------------------------------------------------------------------
+# core/settings.py — actualizar INSTALLED_APPS (terceros):
 INSTALLED_APPS = [
     'jazzmin',
     'django.contrib.admin',
@@ -60,12 +61,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',        # ← requerido por allauth
+    'django.contrib.sites',
     # Terceros
-    'allauth',                     # ← nuevo
-    'allauth.account',             # ← nuevo
-    'allauth.socialaccount',       # ← nuevo (para OAuth futuro)
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
     'rest_framework',
+    'rest_framework.authtoken',    # ← agregar
     'whitenoise.runserver_nostatic',
     # Apps del ERP
     'core',
@@ -76,21 +78,23 @@ INSTALLED_APPS = [
     'reportes',
     'configuracion',
 ]
+# ── DRF ──────────────────────────────────────────────────────────────────
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
 
 # ---------------------------------------------------------------------------
 # Middleware
-# ---------------------------------------------------------------------------
-MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
-]
+# ---------------------------------------------------------------------------]
 
 ROOT_URLCONF = 'core.urls'
 
@@ -148,7 +152,6 @@ LANGUAGE_CODE = 'es-mx'
 TIME_ZONE = 'America/Mexico_City'
 USE_I18N = True
 USE_TZ = True
-
 # ---------------------------------------------------------------------------
 # Archivos estáticos y media
 # ---------------------------------------------------------------------------
@@ -168,7 +171,17 @@ SSTORAGES = {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
-
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',   # justo debajo de SecurityMiddleware
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
+]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
