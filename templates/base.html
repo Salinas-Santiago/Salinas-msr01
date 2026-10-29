@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#1C1214">
+    <meta name="theme-color" content="#161112">
     <title>{% block title %}ERP Django{% endblock %} · UTEC Celaya</title>
 
     <!-- Google Fonts: Playfair Display + Inter + JetBrains Mono -->
@@ -16,42 +16,42 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
           rel="stylesheet">
 
-    <!-- Fable 5 AzulERP — Design System (paleta: escenario rojo / negro / latón) -->
+    <!-- Fable 5 AzulERP — Design System (paleta de la foto: rojo escenario / negro carbón / plata ceniza) -->
     <style>
         /* TOKENS MODO DÍA */
         :root, [data-theme="light"] {
-            --clr-navy   : #1C1214;   /* negro de los tambores */
-            --clr-royal  : #A3201C;   /* carmesí */
-            --clr-sky    : #E0532B;   /* naranja quemado */
-            --clr-ice    : #FBEAE4;   /* rosado cálido claro */
-            --clr-gold   : #B58A2E;   /* latón de los herrajes */
-            --clr-amber  : #D9A441;
-            --clr-cream  : #FAF3E3;   /* blanco hueso */
-            --clr-bg     : #F6F1EC;
+            --clr-navy   : #161112;   /* negro carbón de los tambores */
+            --clr-royal  : #B8302F;   /* rojo de las luces del escenario */
+            --clr-sky    : #EE7B7B;   /* salmón de las luces */
+            --clr-ice    : #F9E3E2;   /* rosado claro */
+            --clr-gold   : #B5AEAC;   /* plata ceniza (herrajes / manos) */
+            --clr-amber  : #D1CAC8;   /* plata clara */
+            --clr-cream  : #F1EBEA;   /* gris hueso */
+            --clr-bg     : #F4EFEE;
             --clr-surface: #FFFFFF;
-            --clr-text   : #1C1214;
-            --clr-muted  : #6B5A57;
-            --clr-border : #E3CFC6;
+            --clr-text   : #161112;
+            --clr-muted  : #6E5F5E;
+            --clr-border : #E4CFCD;
             --clr-danger : #D62D20;
             --clr-ok     : #2E7D4F;
-            --shadow-sm  : 0 1px 4px rgba(28,18,20,.10);
-            --shadow-md  : 0 4px 16px rgba(28,18,20,.16);
+            --shadow-sm  : 0 1px 4px rgba(22,17,18,.10);
+            --shadow-md  : 0 4px 16px rgba(22,17,18,.16);
         }
         /* TOKENS MODO NOCHE */
         [data-theme="dark"] {
-            --clr-navy   : #140B0C;
-            --clr-royal  : #C0302A;
-            --clr-sky    : #FF6A3D;
-            --clr-ice    : #2A1613;
-            --clr-gold   : #D4A53C;
-            --clr-amber  : #E8B84F;
-            --clr-cream  : #2B2112;
-            --clr-bg     : #0E0809;
-            --clr-surface: #1A0F10;
-            --clr-text   : #F2E6DF;
-            --clr-muted  : #B09A93;
-            --clr-border : #4A2A25;
-            --clr-danger : #FF5A4D;
+            --clr-navy   : #0D0909;
+            --clr-royal  : #D03A38;
+            --clr-sky    : #F08A8A;
+            --clr-ice    : #2A1616;
+            --clr-gold   : #BDB6B4;
+            --clr-amber  : #D8D2D0;
+            --clr-cream  : #251B1B;
+            --clr-bg     : #0B0707;
+            --clr-surface: #171010;
+            --clr-text   : #F3E7E6;
+            --clr-muted  : #B39E9C;
+            --clr-border : #4A2B2B;
+            --clr-danger : #FF6B5E;
             --clr-ok     : #3DDC84;
             --shadow-sm  : 0 1px 4px rgba(0,0,0,.4);
             --shadow-md  : 0 4px 16px rgba(0,0,0,.55);
@@ -137,11 +137,12 @@
             border-bottom: 1px solid var(--clr-border); font-size: .9rem;
         }
         .erp-table tbody tr:nth-child(even) td { background: var(--clr-ice); }
-        .erp-table tbody tr:hover td { background: rgba(224,83,43,.10); }
+        .erp-table tbody tr:hover td { background: rgba(238,123,123,.14); }
         .erp-table tfoot td {
-            background: var(--clr-cream); color: var(--clr-gold);
+            background: var(--clr-cream); color: var(--clr-royal);
             font-weight: 700; border-top: 2px solid var(--clr-gold);
         }
+        [data-theme="dark"] .erp-table tfoot td { color: var(--clr-sky); }
         /* BOTONES */
         .btn-erp-primary {
             background: var(--clr-royal); color: #FFF;
@@ -180,7 +181,7 @@
         }
         .erp-input:focus {
             outline: none; border-color: var(--clr-sky);
-            box-shadow: 0 0 0 3px rgba(224,83,43,.20);
+            box-shadow: 0 0 0 3px rgba(238,123,123,.25);
         }
         /* BADGES */
         .badge-erp-active {
@@ -195,11 +196,12 @@
             font-size: .75rem; padding: .2rem .6rem; border-radius: 20px;
         }
         .badge-erp-gold {
-            background: var(--clr-cream); color: var(--clr-gold);
+            background: var(--clr-cream); color: var(--clr-royal);
             border: 1px solid var(--clr-gold);
             font-size: .75rem; padding: .2rem .7rem;
             border-radius: 20px; font-weight: 700;
         }
+        [data-theme="dark"] .badge-erp-gold { color: var(--clr-sky); }
         /* ALERTAS */
         .erp-alert-danger {
             background: rgba(214,45,32,.08); border: 1px solid rgba(214,45,32,.3);
@@ -235,7 +237,7 @@
         }
         [data-theme="dark"] code,
         [data-theme="dark"] .mono {
-            color: var(--clr-sky); background: rgba(255,106,61,.14);
+            color: var(--clr-sky); background: rgba(240,138,138,.14);
         }
         /* FOOTER */
         .erp-footer {
