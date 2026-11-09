@@ -1,77 +1,52 @@
-from decimal import Decimal
+# ventas/views.py
+"""Vistas de la app ventas — W07 + W08 + W09 + W12."""
+import io
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.shortcuts import redirect, render
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView, DetailView, ListView
 
+from xhtml2pdf import pisa
+
+from configuracion.models import ConfiguracionERP
 from .forms import DetalleVentaForm, VentaForm
-from .models import Venta
-
-
-def index(request):
-    return render(request, 'ventas/index.html', {})
-
-
-class VentaListView(ListView):
-    model = Venta
-    template_name = 'ventas/lista.html'
-    context_object_name = 'ventas'
-    paginate_by = 20
-    ordering = ['pk']
-
-
-class VentaDetailView(DetailView):
-    model = Venta
-    pk_url_kwarg = 'venta_id'
-    template_name = 'ventas/detalle.html'
-    
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        filas = []
-        total = Decimal('0')
-        detalles = DetalleVenta.objects.filter(venta=self.object)
-        for d in detalles.select_related('producto'):
-            subtotal = d.cantidad * d.precio_unitario
-            total += subtotal
-            filas.append({
-                'producto': d.producto,
-                'cantidad': d.cantidad,
-                'precio_unitario': d.precio_unitario,
-                'subtotal': subtotal,
-            })
-        ctx['filas'] = filas
-        ctx['total'] = total
-        return ctx
-
-# ventas/views.py — agregar imports al inicio:
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import (
-    login_required,
-    permission_required,
-)
-from django.shortcuts import redirect, render
-from django.urls import reverse_lazy
-from django.views.generic import DeleteView, DetailView, ListView
-
-from .forms  import DetalleVentaForm, VentaForm
 from .models import DetalleVenta, Venta
 
 
+# ── W07: lectura ───────────────────────────────────────────────────────────
+class VentaListView(ListView):
+    """Lista de ventas."""
+    model         = Venta
+    template_name = 'ventas/lista.html'
+
+    def get_queryset(self):
+        return Venta.objects.select_related('cliente')
+
+
+class VentaDetailView(DetailView):
+    """Detalle de una venta con sus líneas."""
+    model         = Venta
+    template_name = 'ventas/detalle.html'
+    pk_url_kwarg  = 'venta_id'
+
+    def get_queryset(self):
+        return (
+            Venta.objects
+            .select_related('cliente')
+            .prefetch_related('detalles__producto')
+        )
+
+
+# ── W08 + W09: crear venta ─────────────────────────────────────────────────
 @login_required
 @permission_required('ventas.add_venta', raise_exception=True)
 def crear_venta(request):
-    """Crea un encabezado de venta con una línea de detalle.
-
-    Decoradores (se aplican de abajo hacia arriba):
-        @login_required            → verifica autenticación
-        @permission_required(...)  → verifica permiso add_venta
-
-    GET  → muestra los dos formularios vacíos.
-    POST → valida ambos, guarda si correctos, muestra errores si no.
-    """
+    """Crea un encabezado de venta con una línea de detalle."""
     venta_form   = VentaForm(request.POST or None)
     detalle_form = DetalleVentaForm(request.POST or None)
 
@@ -93,6 +68,8 @@ def crear_venta(request):
         'detalle_form': detalle_form,
     })
 
+
+# ── W09: eliminar venta ────────────────────────────────────────────────────
 class VentaDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model               = Venta
     template_name       = 'ventas/eliminar.html'
@@ -106,3 +83,33 @@ class VentaDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         response = super().form_valid(form)
         messages.success(self.request, f'Venta #{pk} eliminada.')
         return response
+
+
+# ── W12: factura en PDF ────────────────────────────────────────────────────
+@login_required
+def venta_pdf(request, venta_id: int):
+    """Genera y descarga la factura de una venta en formato PDF."""
+    venta = get_object_or_404(
+        Venta.objects
+        .select_related('cliente')
+        .prefetch_related('detalles__producto'),
+        pk=venta_id
+    )
+    config = ConfiguracionERP.get_instance()
+
+    html_string = render_to_string('ventas/factura_pdf.html', {
+        'venta':  venta,
+        'config': config,
+    })
+    buffer = io.BytesIO()
+
+    pisa_status = pisa.CreatePDF(html_string, dest=buffer)
+    if pisa_status.err:
+        return HttpResponse('Error al generar el PDF de la factura', status=500)
+
+    buffer.seek(0)
+    response = HttpResponse(buffer.read(), content_type='application/pdf')
+    response['Content-Disposition'] = (
+        f'attachment; filename="factura_{venta.pk:05d}.pdf"'
+    )
+    return response

@@ -6,6 +6,7 @@ from . import views
 app_name = 'productos'
 
 urlpatterns = [
+    path('exportar-excel/', views.exportar_excel, name='exportar_excel'),
     # Lectura (W07)
     path('',
          views.ProductoListView.as_view(),
