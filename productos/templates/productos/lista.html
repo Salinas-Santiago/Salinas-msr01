@@ -1,99 +1,26 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% block title %}Productos{% endblock %}
-{% block nav_productos %}active{% endblock %}
-
 {% block content %}
-<div class="erp-page-title">
-    <h2>📦 Productos</h2>
-    {% if user.is_authenticated %}
-        <div class="ms-auto d-flex gap-2">
-            <a href="{% url 'productos:exportar_excel' %}"
-               class="btn-erp-primary">
-                📊 Exportar a Excel
-            </a>
-            <a href="{% url 'productos:crear' %}"
-               class="btn-erp-gold">
-                + Nuevo producto
-            </a>
-        </div>
-    {% endif %}
-</div>
-
-<div class="erp-card">
-    <div class="erp-card-header">Catálogo de productos</div>
-
-    <table class="erp-table">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Proveedor</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for producto in productos %}
-            <tr>
-                <td>
-                    <a href="{% url 'productos:detalle' producto.pk %}">
-                        {{ producto.nombre }}
-                    </a>
-                </td>
-                <td>{{ producto.categoria }}</td>
-                <td>{{ producto.proveedor|default:"Sin asignar" }}</td>
-                <td style="font-weight:700;color:var(--clr-gold);">
-                    ${{ producto.precio }}
-                </td>
-                <td>
-                    {% if producto.stock < 5 %}
-                        <span class="badge-erp-inactive">{{ producto.stock }}</span>
-                    {% else %}
-                        <span class="badge-erp-active">{{ producto.stock }}</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if producto.activo %}
-                        <span class="badge-erp-active">Activo</span>
-                    {% else %}
-                        <span class="badge-erp-inactive">Inactivo</span>
-                    {% endif %}
-                </td>
-                <td>
-                    <a href="{% url 'productos:detalle' producto.pk %}"
-                       class="btn-erp-primary">Ver</a>
-                    {% if user.is_authenticated %}
-                        <a href="{% url 'productos:editar' producto.pk %}"
-                           class="btn-erp-gold">Editar</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7" style="text-align:center;">
-                    No hay productos registrados.
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    {% if is_paginated %}
-    <div class="d-flex gap-2 justify-content-center" style="margin-top:1rem;">
-        {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}"
-               class="btn-erp-primary">← Anterior</a>
-        {% endif %}
-        <span style="align-self:center;">
-            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-        </span>
-        {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}"
-               class="btn-erp-primary">Siguiente →</a>
-        {% endif %}
-    </div>
-    {% endif %}
-</div>
+<h1>Productos</h1>
+{% if perms.productos.add_producto %}
+<p><a href="{% url 'productos:crear' %}" class="btn-erp-primary">+ Agregar</a></p>
+{% endif %}
+<table>
+  <thead><tr><th>Nombre</th><th>Precio</th><th>Stock</th><th>Categor&iacute;a</th><th></th></tr></thead>
+  <tbody>
+  {% for o in productos %}
+    <tr><td>{{ o.nombre }}</td><td>{{ o.precio }}</td><td>{{ o.stock }}</td><td>{{ o.categoria }}</td><td><a href="{% url 'productos:detalle' o.pk %}">Ver</a></td></tr>
+  {% empty %}
+    <tr><td colspan="5">Sin registros.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% if is_paginated %}
+<p>
+  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
+  P&aacute;gina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
+</p>
+{% endif %}
+<p><a href="/">Inicio</a></p>
 {% endblock %}

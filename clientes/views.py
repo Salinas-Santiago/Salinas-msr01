@@ -1,43 +1,37 @@
-from django.shortcuts import render
-from django.views.generic import DetailView, ListView
-
-from .models import Cliente
-
-
-def index(request):
-    return render(request, 'clientes/index.html', {})
-
-
-class ClienteListView(ListView):
-    model = Cliente
-    template_name = 'clientes/lista.html'
-    context_object_name = 'clientes'
-    paginate_by = 20
-    ordering = ['pk']
-
-
-class ClienteDetailView(DetailView):
-    model = Cliente
-    pk_url_kwarg = 'cliente_id'
-    template_name = 'clientes/detalle.html'
-
-# clientes/views.py — agregar imports al inicio:
+# clientes/views.py
+"""Vistas de la app clientes — W07–W12."""
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView, DeleteView, DetailView, ListView, UpdateView
 )
+
 from .forms import ClienteForm
+from .models import Cliente
+
+
+class ClienteListView(ListView):
+    """Lista de todos los clientes registrados."""
+    model = Cliente
+    template_name = 'clientes/lista.html'
+    context_object_name = 'clientes'
+
+
+class ClienteDetailView(DetailView):
+    """Detalle individual de un cliente."""
+    model = Cliente
+    template_name = 'clientes/detalle.html'
+    context_object_name = 'cliente'
+    pk_url_kwarg = 'cliente_id'
 
 
 class ClienteCreateView(LoginRequiredMixin, CreateView):
     """Formulario para crear un nuevo cliente."""
-
-    model         = Cliente
-    form_class    = ClienteForm
+    model = Cliente
+    form_class = ClienteForm
     template_name = 'clientes/crear.html'
-    success_url   = reverse_lazy('clientes:lista')
+    success_url = reverse_lazy('clientes:lista')
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -50,12 +44,11 @@ class ClienteCreateView(LoginRequiredMixin, CreateView):
 
 class ClienteUpdateView(LoginRequiredMixin, UpdateView):
     """Formulario para editar un cliente."""
-
-    model         = Cliente
-    form_class    = ClienteForm
+    model = Cliente
+    form_class = ClienteForm
     template_name = 'clientes/editar.html'
-    pk_url_kwarg  = 'cliente_id'
-    success_url   = reverse_lazy('clientes:lista')
+    pk_url_kwarg = 'cliente_id'
+    success_url = reverse_lazy('clientes:lista')
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -66,34 +59,17 @@ class ClienteUpdateView(LoginRequiredMixin, UpdateView):
         return response
 
 
-class ClienteDeleteView(LoginRequiredMixin, DeleteView):
-    """Confirmación y borrado de un cliente."""
-
-    model         = Cliente
-    template_name = 'clientes/eliminar.html'
-    pk_url_kwarg  = 'cliente_id'
-    success_url   = reverse_lazy('clientes:lista')
-
-    def form_valid(self, form):
-        nombre   = self.object.nombre
-        response = super().form_valid(form)
-        messages.success(self.request, f'Cliente "{nombre}" eliminado.')
-        return response
-
-# Agregar PermissionRequiredMixin al import:
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-
-# Actualizar ClienteDeleteView:
 class ClienteDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
-    model               = Cliente
-    template_name       = 'clientes/eliminar.html'
-    pk_url_kwarg        = 'cliente_id'
-    success_url         = reverse_lazy('clientes:lista')
+    """Confirmación y borrado de un cliente."""
+    model = Cliente
+    template_name = 'clientes/eliminar.html'
+    pk_url_kwarg = 'cliente_id'
+    success_url = reverse_lazy('clientes:lista')
     permission_required = 'clientes.delete_cliente'
-    raise_exception     = True
+    raise_exception = True
 
     def form_valid(self, form):
-        nombre   = self.object.nombre
+        nombre = self.object.nombre
         response = super().form_valid(form)
         messages.success(self.request, f'Cliente "{nombre}" eliminado.')
         return response

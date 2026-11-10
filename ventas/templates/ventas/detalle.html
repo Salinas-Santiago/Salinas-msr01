@@ -6,6 +6,7 @@
 <div class="erp-page-title">
     <h2>🧾 Venta #{{ venta.pk }}</h2>
     {% if user.is_authenticated %}
+        <!-- W12: descarga de factura en PDF -->
         <a href="{% url 'ventas:pdf' venta.pk %}"
            class="btn-erp-gold ms-auto">
             📄 Descargar Factura PDF

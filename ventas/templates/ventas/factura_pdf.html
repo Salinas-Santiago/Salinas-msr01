@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <title>Factura #{{ venta.pk }}</title>
     <style>
-        @page {
-            size: letter;
-            margin: 1.5cm;
-        }
+        @page { size: letter; margin: 1.5cm; }
         body {
             font-family: Helvetica, Arial, sans-serif;
             font-size: 10pt;
@@ -19,15 +16,8 @@
             padding: 15px;
             border-bottom: 3px solid #B8860B;
         }
-        .title {
-            font-size: 18pt;
-            font-weight: bold;
-            color: #D4AF37;
-        }
-        .empresa {
-            font-size: 11pt;
-            color: #E2EAF4;
-        }
+        .title   { font-size: 18pt; font-weight: bold; color: #D4AF37; }
+        .empresa { font-size: 11pt; color: #E2EAF4; }
         .table {
             width: 100%;
             border-collapse: collapse;
@@ -45,9 +35,7 @@
             border-bottom: 1px solid #C8D8EC;
             font-size: 9pt;
         }
-        .text-right {
-            text-align: right;
-        }
+        .text-right { text-align: right; }
         .total-box {
             margin-top: 15px;
             text-align: right;
@@ -60,10 +48,15 @@
 <body>
     <div class="header">
         <div class="title">FACTURA #{{ venta.pk|stringformat:"05d" }}</div>
-        <div class="empresa">{{ config.nombre_empresa }}</div>
+        <div class="empresa">
+            {{ config.nombre_empresa }}{% if config.rfc %} · RFC: {{ config.rfc }}{% endif %}
+        </div>
     </div>
-    
-    <p style="margin-top: 12px;"><strong>Cliente:</strong> {{ venta.cliente.nombre }} ({{ venta.cliente.correo }})</p>
+
+    <p style="margin-top: 12px;">
+        <strong>Cliente:</strong> {{ venta.cliente.nombre }} ({{ venta.cliente.correo }})
+        {% if venta.cliente.telefono %} · Tel: {{ venta.cliente.telefono }}{% endif %}
+    </p>
     <p><strong>Fecha de emisión:</strong> {{ venta.fecha|date:"d/m/Y H:i" }} h</p>
 
     <table class="table">
@@ -96,10 +89,5 @@
     <div class="total-box">
         Total: ${{ venta.total }} {{ config.moneda }}
     </div>
-
-    <a href="{% url 'ventas:pdf' venta.pk %}" class="btn btn-outline-danger me-2">
-    <i class="bi bi-file-earmark-pdf"></i> Descargar Factura PDF
-</a>
-
 </body>
 </html>

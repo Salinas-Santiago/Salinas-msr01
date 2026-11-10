@@ -1,20 +1,28 @@
+"""Suite de pruebas W12 — Documentos binarios: PDF (xhtml2pdf) y Excel (openpyxl).
+
+Ejecutar con:
+    python manage.py test tests.test_w12_documentos --verbosity=2
+"""
 from decimal import Decimal
+
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
-from django.contrib.auth.models import User
 
 from clientes.models import Cliente
-from productos.models import Categoria, Producto
-from ventas.models import Venta, DetalleVenta
 from configuracion.models import ConfiguracionERP
+from productos.models import Categoria, Producto
+from ventas.models import DetalleVenta, Venta
 
 
 class DocumentosW12Test(TestCase):
     def setUp(self):
         ConfiguracionERP.get_instance()
         self.user = User.objects.create_user('docuser', password='password123')
-        cat = Categoria.objects.create(nombre='Cat W12')
-        prod = Producto.objects.create(nombre='Prod W12', precio=Decimal('150.00'), stock=10, categoria=cat)
+        cat  = Categoria.objects.create(nombre='Cat W12')
+        prod = Producto.objects.create(
+            nombre='Prod W12', precio=Decimal('150.00'), stock=10, categoria=cat
+        )
         cli = Cliente.objects.create(nombre='Cli W12', correo='cli@w12.com')
         self.venta = Venta.objects.create(cliente=cli)
         DetalleVenta.objects.create(
@@ -34,6 +42,15 @@ class DocumentosW12Test(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('application/pdf', response['Content-Type'])
         self.assertTrue(response.content.startswith(b'%PDF'))
+
+    def test_pdf_venta_inexistente_da_404(self):
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('ventas:pdf', args=[99999]))
+        self.assertEqual(response.status_code, 404)
+
+    def test_excel_requiere_autenticacion(self):
+        response = self.client.get(reverse('productos:exportar_excel'))
+        self.assertEqual(response.status_code, 302)
 
     def test_excel_exportacion_correcta_openpyxl(self):
         self.client.force_login(self.user)
