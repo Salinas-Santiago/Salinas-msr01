@@ -3,58 +3,28 @@
 {% block nav_ventas %}active{% endblock %}
 
 {% block content %}
-<div class="erp-page-title">
-    <h2>💰 Detalle de Venta #{{ venta.pk }}</h2>
-    {% if user.is_authenticated %}
-        <a href="{% url 'ventas:pdf' venta.pk %}" class="btn-erp-gold ms-auto">Descargar PDF</a>
-        <a href="{% url 'ventas:eliminar' venta.pk %}" class="btn-erp-danger">Eliminar</a>
-    {% endif %}
-</div>
-
+<div class="erp-page-title"><h2>🧾 Venta #{{ venta.pk }}</h2></div>
 <div class="erp-card">
-    <div class="erp-card-header">Encabezado de Venta</div>
-    <p><strong>Cliente:</strong> {{ venta.cliente.nombre }} ({{ venta.cliente.correo }})</p>
+    <p><strong>Cliente:</strong> {{ venta.cliente }}</p>
     <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y H:i" }}</p>
-    <p style="font-size:1.2rem;font-weight:700;color:var(--clr-gold);">
-        Total: ${{ venta.total|stringformat:".2f" }}
-    </p>
-</div>
 
-<div class="erp-card">
-    <div class="erp-card-header">Líneas de Producto</div>
-    <table class="erp-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Producto</th>
-                <th style="text-align:right;">Precio Unitario</th>
-                <th style="text-align:right;">Cantidad</th>
-                <th style="text-align:right;">Subtotal</th>
-            </tr>
-        </thead>
+    <table class="table">
+        <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead>
         <tbody>
-            {% for d in venta.detalles.all %}
+        {% for d in venta.detalles.all %}
             <tr>
-                <td>{{ forloop.counter }}</td>
                 <td>{{ d.producto.nombre }}</td>
-                <td style="text-align:right;">${{ d.precio_unitario }}</td>
-                <td style="text-align:right;">{{ d.cantidad }}</td>
-                <td style="text-align:right;">${{ d.subtotal }}</td>
+                <td>{{ d.cantidad }}</td>
+                <td>${{ d.precio_unitario|floatformat:2 }}</td>
+                <td>${{ d.subtotal|floatformat:2 }}</td>
             </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" style="text-align:center;">Sin detalles registrados.</td>
-            </tr>
-            {% endfor %}
+        {% endfor %}
         </tbody>
-        <tfoot>
-            <tr>
-                <td colspan="4" style="text-align:right;"><strong>Total General:</strong></td>
-                <td style="text-align:right;"><strong>${{ venta.total|stringformat:".2f" }}</strong></td>
-            </tr>
-        </tfoot>
     </table>
-</div>
 
-<a href="{% url 'ventas:lista' %}" class="btn-erp-primary">← Volver a la lista</a>
+    <h4>Total: ${{ venta.total|floatformat:2 }}</h4>
+
+    <a href="{% url 'ventas:pdf' venta.pk %}" class="btn-erp-primary">Descargar Factura PDF</a>
+    <a href="{% url 'ventas:lista' %}" class="btn-erp-primary">← Volver</a>
+</div>
 {% endblock %}

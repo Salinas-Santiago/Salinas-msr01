@@ -4,33 +4,47 @@
 
 {% block content %}
 <div class="erp-page-title">
-    <h2>📦 Catálogo de Productos</h2>
-    {% if user.is_authenticated %}
-        <a href="{% url 'productos:exportar_excel' %}" class="btn-erp-gold ms-auto">Exportar a Excel</a>
-        <a href="{% url 'productos:crear' %}" class="btn-erp-primary">Nuevo producto</a>
-    {% endif %}
+    <h2>📦 Productos</h2>
+    <div class="ms-auto">
+        <a href="{% url 'productos:exportar_excel' %}" class="btn-erp-primary">Exportar a Excel</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'productos:crear' %}" class="btn-erp-gold">+ Nuevo</a>
+        {% endif %}
+    </div>
 </div>
 
-<div class="row g-3">
-    {% for producto in productos|default:object_list %}
-    <div class="col-md-4">
-        <div class="erp-card">
-            <div class="d-flex align-items-center gap-3">
-                {% if producto.imagen %}
-                    <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width:60px;height:60px;object-fit:cover;border-radius:6px;">
-                {% endif %}
-                <div>
-                    <strong style="color:var(--clr-navy);">{{ producto.nombre }}</strong>
-                    <p style="margin:.2rem 0;color:var(--clr-gold);font-weight:700;">${{ producto.precio }}</p>
-                    <small style="color:var(--clr-muted);">Stock: {{ producto.stock }}</small>
-                </div>
-            </div>
-        </div>
+<div class="erp-card">
+    {% if productos %}
+    <table class="table">
+        <thead>
+            <tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Stock</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for p in productos %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.categoria }}</td>
+                <td>${{ p.precio|floatformat:2 }}</td>
+                <td>{{ p.stock }}</td>
+                <td><a href="{% url 'productos:detalle' p.pk %}">Ver</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+    <div style="display:flex;gap:.5rem;justify-content:center;margin-top:1rem;">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">← Anterior</a>
+        {% endif %}
+        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Siguiente →</a>
+        {% endif %}
     </div>
-    {% empty %}
-    <div class="col-12">
-        <div class="erp-alert-info">No hay productos registrados en el sistema.</div>
-    </div>
-    {% endfor %}
+    {% endif %}
+    {% else %}
+        <p>No hay productos registrados.</p>
+    {% endif %}
 </div>
 {% endblock %}

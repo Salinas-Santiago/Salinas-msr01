@@ -1,26 +1,50 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block title %}Productos{% endblock %}
+{% block nav_productos %}active{% endblock %}
+
 {% block content %}
-<h1>Productos</h1>
-{% if perms.productos.add_producto %}
-<p><a href="{% url 'productos:crear' %}" class="btn-erp-primary">+ Agregar</a></p>
-{% endif %}
-<table>
-  <thead><tr><th>Nombre</th><th>Precio</th><th>Stock</th><th>Categor&iacute;a</th><th></th></tr></thead>
-  <tbody>
-  {% for o in productos %}
-    <tr><td>{{ o.nombre }}</td><td>{{ o.precio }}</td><td>{{ o.stock }}</td><td>{{ o.categoria }}</td><td><a href="{% url 'productos:detalle' o.pk %}">Ver</a></td></tr>
-  {% empty %}
-    <tr><td colspan="5">Sin registros.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
-{% if is_paginated %}
-<p>
-  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
-  P&aacute;gina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
-</p>
-{% endif %}
-<p><a href="/">Inicio</a></p>
+<div class="erp-page-title">
+    <h2>📦 Productos</h2>
+    <div class="ms-auto">
+        <a href="{% url 'productos:exportar_excel' %}" class="btn-erp-primary">Exportar a Excel</a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'productos:crear' %}" class="btn-erp-gold">+ Nuevo</a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="erp-card">
+    {% if productos %}
+    <table class="table">
+        <thead>
+            <tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Stock</th><th></th></tr>
+        </thead>
+        <tbody>
+        {% for p in productos %}
+            <tr>
+                <td>{{ p.nombre }}</td>
+                <td>{{ p.categoria }}</td>
+                <td>${{ p.precio|floatformat:2 }}</td>
+                <td>{{ p.stock }}</td>
+                <td><a href="{% url 'productos:detalle' p.pk %}">Ver</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    {% if is_paginated %}
+    <div style="display:flex;gap:.5rem;justify-content:center;margin-top:1rem;">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}">← Anterior</a>
+        {% endif %}
+        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Siguiente →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    {% else %}
+        <p>No hay productos registrados.</p>
+    {% endif %}
+</div>
 {% endblock %}

@@ -53,6 +53,7 @@ if not DEBUG and not TESTING:
 # Aplicaciones
 # ---------------------------------------------------------------------------
 # core/settings.py — actualizar INSTALLED_APPS (terceros):
+# core/settings.py — actualizar INSTALLED_APPS:
 INSTALLED_APPS = [
     'jazzmin',
     'django.contrib.admin',
@@ -67,9 +68,11 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'rest_framework',
-    'rest_framework.authtoken',    # ← agregar
+    'rest_framework.authtoken',
+    'django_filters',              # ← nuevo (nombre de app es django_filters)
     'whitenoise.runserver_nostatic',
-    # Apps del ERP
+    # Apps del 
+    # ERP
     'core',
     'clientes',
     'proveedores',
@@ -77,6 +80,7 @@ INSTALLED_APPS = [
     'ventas',
     'reportes',
     'configuracion',
+    'catalogo',                    # ← nuevo
 ]
 # ── DRF ──────────────────────────────────────────────────────────────────
 REST_FRAMEWORK = {
@@ -109,6 +113,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                # Context processor del carrito — W13
+                'catalogo.context_processors.carrito_info',
             ],
         },
     },

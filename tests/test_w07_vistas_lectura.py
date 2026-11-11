@@ -45,6 +45,8 @@ class ProductoVistaTest(TestCase):
         """El contexto de la lista debe contener el producto creado."""
         r = self.client.get(reverse('productos:lista'))
         self.assertIn('productos', r.context)
+        print("TEMPLATES:", [t.name for t in r.templates if t.name])
+        print(r.content.decode()[:3000])
         self.assertContains(r, 'Laptop Test')
 
     def test_detalle_producto_http_200(self):

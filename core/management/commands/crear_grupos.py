@@ -8,8 +8,6 @@ Crea o actualiza los grupos:
     Gerente  → acceso completo a todas las apps del ERP
     Vendedor → operar ventas, consultar productos y clientes
     Almacén  → gestionar inventario de productos
-
-Ejecutar en producción después de cada deploy para sincronizar permisos.
 """
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
@@ -23,15 +21,7 @@ from ventas.models         import DetalleVenta, Pedido, Venta
 
 
 def _permisos(*modelos: type, acciones=('add', 'change', 'delete', 'view')):
-    """Obtiene permisos de las acciones indicadas para los modelos dados.
-
-    Args:
-        *modelos: clases de modelo Django.
-        acciones: tupla de acciones (add, change, delete, view).
-
-    Returns:
-        QuerySet de Permission filtrado.
-    """
+    """Obtiene permisos de las acciones indicadas para los modelos dados."""
     ct_ids = [
         ContentType.objects.get_for_model(m).pk
         for m in modelos

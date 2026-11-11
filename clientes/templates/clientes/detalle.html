@@ -1,10 +1,15 @@
-{% extends 'base.html' %}
-{% block title %}Cliente{% endblock %}
+{% extends "base.html" %}
+{% block title %}{{ cliente.nombre }}{% endblock %}
+{% block nav_clientes %}active{% endblock %}
+
 {% block content %}
-<h1>Cliente #{{ cliente.pk }}</h1>
-<dl>
-  <dt>Nombre</dt><dd>{{ cliente.nombre }}</dd>
-  <dt>Correo</dt><dd>{{ cliente.correo }}</dd>
-</dl>
-<p><a href="{% url 'clientes:lista' %}">Volver a la lista</a></p>
+<div class="erp-page-title"><h2>👤 {{ cliente.nombre }}</h2></div>
+<div class="erp-card">
+    <dl class="row">
+        <dt class="col-sm-3">Nombre</dt><dd class="col-sm-9">{{ cliente.nombre }}</dd>
+        <dt class="col-sm-3">Correo</dt><dd class="col-sm-9">{{ cliente.correo }}</dd>
+        <dt class="col-sm-3">Teléfono</dt><dd class="col-sm-9">{{ cliente.telefono|default:"—" }}</dd>
+    </dl>
+    <a href="{% url 'clientes:lista' %}" class="btn-erp-primary">← Volver</a>
+</div>
 {% endblock %}
