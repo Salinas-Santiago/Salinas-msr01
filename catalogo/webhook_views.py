@@ -11,11 +11,19 @@ Eventos manejados:
     payment_intent.succeeded     → Pedido.estado = 'pagado'
                                     Descontar stock de productos
     payment_intent.payment_failed → Pedido.estado = 'cancelado'
+
+Compatibilidad:
+    En stripe-python >= 13 los objetos del evento (PaymentIntent, etc.)
+    ya NO son diccionarios y no tienen .get(). Por eso se convierten a
+    dict con _a_dict() antes de pasarlos a los handlers. La función
+    también acepta dicts normales, así que los tests con mocks siguen
+    funcionando.
 """
 import logging
 
 import stripe
 from django.conf import settings
+from django.db import transaction
 from django.db.models import F
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -27,19 +35,17 @@ from ventas.models    import Pedido
 logger = logging.getLogger(__name__)
 
 
+def _a_dict(obj) -> dict:
+    """Convierte un objeto de Stripe a dict (o devuelve el dict tal cual)."""
+    if hasattr(obj, 'to_dict'):
+        return obj.to_dict()
+    return obj
+
+
 @csrf_exempt
 @require_POST
 def stripe_webhook(request) -> HttpResponse:
     """Recibe y procesa eventos de Stripe.
-
-    Flujo:
-        1. Leer payload crudo (bytes) y header de firma.
-        2. Verificar firma con STRIPE_WEBHOOK_SECRET.
-        3. Despachar al handler del tipo de evento.
-        4. Retornar 200 (éxito) o 400 (firma inválida).
-
-    Args:
-        request: HttpRequest con cuerpo raw y header Stripe-Signature.
 
     Returns:
         HttpResponse: 200 si el evento fue procesado correctamente,
@@ -56,11 +62,9 @@ def stripe_webhook(request) -> HttpResponse:
             secret     = settings.STRIPE_WEBHOOK_SECRET,
         )
     except ValueError:
-        # Payload malformado (no es JSON válido)
         logger.warning('Webhook: payload inválido recibido.')
         return HttpResponse('Payload inválido.', status=400)
     except stripe.error.SignatureVerificationError:
-        # Firma inválida — posible intento de falsificación
         logger.warning('Webhook: firma inválida — posible ataque.')
         return HttpResponse('Firma inválida.', status=400)
 
@@ -68,65 +72,63 @@ def stripe_webhook(request) -> HttpResponse:
     tipo = event['type']
     logger.info(f'Webhook recibido: {tipo}')
 
+    objeto = _a_dict(event['data']['object'])
+
     if tipo == 'payment_intent.succeeded':
-        _manejar_pago_exitoso(event['data']['object'])
+        _manejar_pago_exitoso(objeto)
 
     elif tipo == 'payment_intent.payment_failed':
-        _manejar_pago_fallido(event['data']['object'])
+        _manejar_pago_fallido(objeto)
 
     else:
         logger.debug(f'Evento ignorado: {tipo}')
 
-    # Siempre retornar 200 para eventos que no necesitamos
-    # (Stripe reintentará si recibe 4xx o 5xx)
     return HttpResponse(status=200)
 
 
 # ── HANDLERS INTERNOS ──────────────────────────────────────────────────────
 
 def _manejar_pago_exitoso(payment_intent: dict) -> None:
-    """Procesa un pago confirmado por Stripe.
+    """Marca el Pedido como 'pagado' y descuenta el stock.
 
-    Actualiza el Pedido a 'pagado' y descuenta el stock de productos.
-
-    Args:
-        payment_intent: objeto PaymentIntent del evento de Stripe.
+    Todo ocurre en una transacción: si falla el descuento de stock,
+    el pedido NO queda marcado como pagado y Stripe reintentará.
     """
     pedido_id = _extraer_pedido_id(payment_intent)
     if pedido_id is None:
         return
 
     try:
-        pedido = Pedido.objects.get(pk=pedido_id)
-    except Pedido.DoesNotExist:
-        logger.error(f'Webhook: Pedido {pedido_id} no encontrado en BD.')
-        return
+        with transaction.atomic():
+            try:
+                pedido = Pedido.objects.select_for_update().get(pk=pedido_id)
+            except Pedido.DoesNotExist:
+                logger.error(
+                    f'Webhook: Pedido {pedido_id} no encontrado en BD.'
+                )
+                return
 
-    # Actualizar estado del pedido
-    if pedido.estado != 'pagado':
-        pedido.estado = 'pagado'
-        pedido.save(update_fields=['estado'])
-        logger.info(
-            f'Pedido {pedido.numero_pedido} actualizado a "pagado".'
+            if pedido.estado != 'pagado':
+                pedido.estado = 'pagado'
+                pedido.save(update_fields=['estado'])
+                logger.info(
+                    f'Pedido {pedido.numero_pedido} actualizado a "pagado".'
+                )
+                _descontar_stock(pedido)
+            else:
+                logger.info(
+                    f'Pedido {pedido.numero_pedido} ya estaba pagado — '
+                    f'idempotente, sin cambios.'
+                )
+    except Exception:
+        logger.exception(
+            f'Webhook: error procesando pago del pedido {pedido_id}.'
         )
-
-        # Descontar stock de cada producto del snapshot
-        _descontar_stock(pedido)
-    else:
-        logger.info(
-            f'Pedido {pedido.numero_pedido} ya estaba pagado — '
-            f'idempotente, sin cambios.'
-        )
+        raise
 
 
 def _manejar_pago_fallido(payment_intent: dict) -> None:
-    """Procesa un pago fallido o rechazado.
-
-    Actualiza el Pedido a 'cancelado'.
-
-    Args:
-        payment_intent: objeto PaymentIntent del evento de Stripe.
-    """
+    """Marca el Pedido como 'cancelado' si seguía pendiente."""
     pedido_id = _extraer_pedido_id(payment_intent)
     if pedido_id is None:
         return
@@ -146,15 +148,8 @@ def _manejar_pago_fallido(payment_intent: dict) -> None:
 
 
 def _extraer_pedido_id(payment_intent: dict) -> int | None:
-    """Extrae el pedido_id del metadata del PaymentIntent.
-
-    Args:
-        payment_intent: objeto PaymentIntent de Stripe.
-
-    Returns:
-        int con el ID del pedido, o None si no está en el metadata.
-    """
-    metadata  = payment_intent.get('metadata', {})
+    """Extrae el pedido_id del metadata del PaymentIntent."""
+    metadata  = payment_intent.get('metadata') or {}
     pedido_id = metadata.get('pedido_id')
 
     if not pedido_id:
@@ -172,26 +167,26 @@ def _extraer_pedido_id(payment_intent: dict) -> int | None:
 
 
 def _descontar_stock(pedido: 'Pedido') -> None:
-    """Descuenta el stock de los productos del pedido.
-
-    Usa expresiones F() para actualizar el stock de forma atómica,
-    evitando race conditions cuando múltiples webhooks llegan
-    simultáneamente.
-
-    Args:
-        pedido: instancia de Pedido con items_snapshot cargado.
-    """
+    """Descuenta el stock de los productos del pedido con F() (atómico)."""
     items = pedido.items_snapshot or []
+
+    if not items:
+        logger.warning(
+            f'Pedido {pedido.numero_pedido}: items_snapshot vacío, '
+            f'no hay stock que descontar.'
+        )
 
     for item in items:
         producto_id = item.get('producto_id')
         cantidad    = int(item.get('cantidad', 0))
 
         if not producto_id or cantidad <= 0:
+            logger.warning(
+                f'Pedido {pedido.numero_pedido}: item inválido en '
+                f'snapshot: {item!r}'
+            )
             continue
 
-        # F('stock') - cantidad: actualización atómica en la BD
-        # Evita leer el stock actual en Python (race condition)
         filas_actualizadas = Producto.objects.filter(
             pk=producto_id,
             stock__gte=cantidad    # solo si hay stock suficiente
