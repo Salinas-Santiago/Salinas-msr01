@@ -1,135 +1,304 @@
 ﻿<!DOCTYPE html>
-<html lang="es" data-theme="light">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#161112">
+    <meta name="theme-color" content="#0b0504">
     <title>{% block title %}ERP Django{% endblock %} · UTEC Celaya</title>
 
-    <!-- Google Fonts: Playfair Display + Inter + JetBrains Mono -->
+    <!-- Evita parpadeo: aplica tema y efectos guardados antes de pintar -->
+    <script>
+    try {
+        var _h = document.documentElement;
+        _h.setAttribute('data-theme', localStorage.getItem('erpTheme') || 'dark');
+        var _f = localStorage.getItem('erpFx');
+        if (_f === 'off' || (_f === null && window.matchMedia &&
+            matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+            _h.classList.add('fx-off');
+        }
+    } catch (e) {}
+    </script>
+
+    <!-- Google Fonts: Oswald (industrial) + Inter + JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
           rel="stylesheet">
 
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
           rel="stylesheet">
 
-    <!-- Fable 5 AzulERP — Design System (paleta de la foto: rojo escenario / negro carbón / plata ceniza) -->
+    <!-- Fable 5 INFERNO — Design System (escenario en llamas) -->
     <style>
-        /* TOKENS MODO DÍA */
-        :root, [data-theme="light"] {
-            --clr-navy   : #161112;   /* negro carbón de los tambores */
-            --clr-royal  : #B8302F;   /* rojo de las luces del escenario */
-            --clr-sky    : #EE7B7B;   /* salmón de las luces */
-            --clr-ice    : #F9E3E2;   /* rosado claro */
-            --clr-gold   : #B5AEAC;   /* plata ceniza (herrajes / manos) */
-            --clr-amber  : #D1CAC8;   /* plata clara */
-            --clr-cream  : #F1EBEA;   /* gris hueso */
-            --clr-bg     : #F4EFEE;
-            --clr-surface: #FFFFFF;
-            --clr-text   : #161112;
-            --clr-muted  : #6E5F5E;
-            --clr-border : #E4CFCD;
-            --clr-danger : #D62D20;
-            --clr-ok     : #2E7D4F;
-            --shadow-sm  : 0 1px 4px rgba(22,17,18,.10);
-            --shadow-md  : 0 4px 16px rgba(22,17,18,.16);
+        /* ═════════ TOKENS · MODO INFERNO (noche, por defecto) ═════════
+           Se conservan los NOMBRES de variables de AzulERP para que
+           todas las plantillas existentes sigan funcionando.        */
+        :root, [data-theme="dark"] {
+            --clr-navy   : #1b0d09;                 /* carbón: navbar, thead */
+            --clr-royal  : #9c240f;                 /* brasa roja: hover */
+            --clr-sky    : #ff9a3d;                 /* llama naranja: links/títulos */
+            --clr-ice    : rgba(255,122,40,.06);    /* filas alternas */
+            --clr-gold   : #ff7a1a;                 /* acento principal */
+            --clr-amber  : #ffc13b;                 /* acento brillante */
+            --clr-cream  : rgba(255,140,40,.11);
+            --clr-bg     : #080403;
+            --clr-surface: rgba(21,11,8,.84);
+            --clr-text   : #f7e9dc;
+            --clr-muted  : #b99d88;
+            --clr-border : #4d2515;
+            --clr-danger : #ff5a45;
+            --clr-ok     : #4fd68a;
+            --fire-1: #fff6cf; --fire-2: #ffd23f; --fire-3: #ff8a14; --fire-4: #e2380c;
+            --glow       : 0 0 18px rgba(255,106,0,.55);
+            --shadow-sm  : 0 2px 10px rgba(0,0,0,.6);
+            --shadow-md  : 0 6px 26px rgba(255,90,10,.18), 0 4px 16px rgba(0,0,0,.6);
+            --bs-body-color: #f7e9dc;
+            --bs-body-bg: transparent;
         }
-        /* TOKENS MODO NOCHE */
-        [data-theme="dark"] {
-            --clr-navy   : #0D0909;
-            --clr-royal  : #D03A38;
-            --clr-sky    : #F08A8A;
-            --clr-ice    : #2A1616;
-            --clr-gold   : #BDB6B4;
-            --clr-amber  : #D8D2D0;
-            --clr-cream  : #251B1B;
-            --clr-bg     : #0B0707;
-            --clr-surface: #171010;
-            --clr-text   : #F3E7E6;
-            --clr-muted  : #B39E9C;
-            --clr-border : #4A2B2B;
-            --clr-danger : #FF6B5E;
-            --clr-ok     : #3DDC84;
-            --shadow-sm  : 0 1px 4px rgba(0,0,0,.4);
-            --shadow-md  : 0 4px 16px rgba(0,0,0,.55);
+        /* ═════════ TOKENS · MODO CENIZA (día) ═════════ */
+        [data-theme="light"] {
+            --clr-navy   : #2a120b;
+            --clr-royal  : #b3300f;
+            --clr-sky    : #c2410c;
+            --clr-ice    : #fbebdd;
+            --clr-gold   : #c2410c;
+            --clr-amber  : #e07b00;
+            --clr-cream  : #fff0dc;
+            --clr-bg     : #efe3d8;
+            --clr-surface: rgba(255,251,247,.93);
+            --clr-text   : #2b1610;
+            --clr-muted  : #7d5f50;
+            --clr-border : #e5c9b6;
+            --clr-danger : #c0392b;
+            --clr-ok     : #1a7a4a;
+            --glow       : 0 0 14px rgba(194,65,12,.35);
+            --shadow-sm  : 0 1px 4px rgba(42,18,11,.10);
+            --shadow-md  : 0 4px 16px rgba(42,18,11,.16);
+            --bs-body-color: #2b1610;
+            --bs-body-bg: transparent;
         }
-        /* BASE */
+
+        /* ═════════ BASE ═════════ */
         *, *::before, *::after { box-sizing: border-box; }
+        html { background: var(--clr-bg); }
         body {
             font-family: 'Inter','Segoe UI',sans-serif;
-            font-size: 15px;
-            background: var(--clr-bg);
-            color: var(--clr-text);
-            line-height: 1.6;
-            transition: background .25s, color .25s;
-            margin: 0;
+            font-size: 15px; line-height: 1.6; margin: 0;
+            background: transparent; color: var(--clr-text);
+            transition: color .25s;
         }
-        /* NAVBAR */
+        h1,h2,h3,h4,h5,h6,[style*="Playfair"] {
+            font-family: 'Oswald','Arial Narrow',sans-serif !important;
+            letter-spacing: .05em;
+        }
+        a { color: var(--clr-sky); text-decoration: none; transition: color .2s, text-shadow .2s; }
+        a:hover { color: var(--clr-amber); text-shadow: 0 0 10px rgba(255,150,40,.45); }
+        ::selection { background: var(--clr-gold); color: #1b0d09; }
+        input[type=checkbox], input[type=radio] { accent-color: var(--clr-gold); }
+        ::placeholder { color: var(--clr-muted) !important; opacity: .7; }
+        option { background: #1b0d09; color: #f7e9dc; }
+        :focus-visible { outline: 2px solid var(--clr-amber); outline-offset: 2px; }
+        /* scrollbar */
+        ::-webkit-scrollbar { width: 11px; height: 11px; }
+        ::-webkit-scrollbar-track { background: #0b0504; }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(#ff8a14,#9c240f);
+            border-radius: 8px; border: 2px solid #0b0504;
+        }
+        /* En modo noche, textos con color navy inline pasan a naranja legible */
+        [data-theme="dark"] [style*="color:var(--clr-navy)"],
+        [data-theme="dark"] [style*="color: var(--clr-navy)"] { color: var(--clr-sky) !important; }
+        [data-theme="dark"] .table { --bs-table-bg: transparent; --bs-table-color: var(--clr-text);
+                                    --bs-table-border-color: var(--clr-border); color: var(--clr-text); }
+
+        /* ═════════ FONDO ANIMADO: ESCENARIO EN LLAMAS ═════════ */
+        .fx { position: fixed; inset: 0; z-index: -1; overflow: hidden;
+              pointer-events: none; background: #050202; }
+        .fx-sky { position: absolute; inset: 0; background:
+            radial-gradient(120% 70% at 50% 108%, rgba(255,96,10,.55) 0%, rgba(190,40,8,.32) 32%, rgba(40,10,4,0) 62%),
+            linear-gradient(#030101 0%, #120503 55%, #2b0d05 100%); }
+        .fx-smoke { position: absolute; width: 70vmax; height: 40vmax; border-radius: 50%;
+            filter: blur(50px); opacity: .55;
+            background: radial-gradient(closest-side, rgba(120,52,22,.6), rgba(60,20,8,.25) 60%, transparent); }
+        .fx-smoke.s1 { left: -15vmax; bottom: 12vh; animation: drift1 26s ease-in-out infinite alternate; }
+        .fx-smoke.s2 { right: -20vmax; bottom: 24vh; animation: drift2 34s ease-in-out infinite alternate; }
+        @keyframes drift1 { from { transform: translate3d(0,0,0) scale(1); }
+                            to   { transform: translate3d(30vw,-6vh,0) scale(1.25); } }
+        @keyframes drift2 { from { transform: translate3d(0,0,0) scale(1.2); }
+                            to   { transform: translate3d(-34vw,-8vh,0) scale(.95); } }
+
+        /* Reflectores que barren el escenario */
+        .beam { position: absolute; transform-origin: 50% 100%;
+            background: linear-gradient(to top, rgba(255,176,80,.30), rgba(255,140,40,.08) 60%, transparent);
+            clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%);
+            animation: sway 7s ease-in-out infinite alternate; }
+        @keyframes sway { from { transform: rotate(calc(var(--r) * -1)); }
+                          to   { transform: rotate(var(--r)); } }
+
+        /* Columnas de fuego (pirotecnia) */
+        .fx-flames { position: absolute; inset: 0; }
+        .shot { position: absolute; transform-origin: 50% 100%; opacity: 0;
+            transform: scaleY(0); will-change: transform, opacity; filter: blur(1.2px);
+            animation: shoot 4s linear infinite; animation-delay: var(--d, 0s); animation-fill-mode: both; }
+        .shot.ga { --d: 0s; }
+        .shot.gb { --d: .25s; }
+        .shot.gc { --d: 2s; }
+        .shot.gd { --d: 4s; animation-name: shootc; animation-duration: 8s; }
+        .shot i { position: absolute; left: 50%; bottom: 0; width: 38%; height: 94%; margin-left: -19%;
+            border-radius: 50% 50% 30% 30% / 22% 22% 8% 8%;
+            background: linear-gradient(to top, #fff6cf 0, #ffd23f 14%, #ff8a14 42%, #e2380c 78%, rgba(138,18,4,0));
+            animation: flick .14s ease-in-out infinite alternate;
+            animation-delay: calc(var(--k, 0) * -.05s); }
+        .shot b, .shot u, .shot::after {
+            position: absolute; border-radius: 50%;
+            background: radial-gradient(closest-side, rgba(255,214,107,.95), rgba(255,122,20,.8) 55%, rgba(179,32,10,0)); }
+        .shot b { left: 0; top: 0; width: 100%; aspect-ratio: 1/1; }
+        .shot u { left: -20%; top: 12%; width: 58%; aspect-ratio: 1/1; }
+        .shot::after { content: ''; right: -20%; top: 9%; width: 62%; aspect-ratio: 1/1; }
+        @keyframes flick { from { transform: scaleX(.82) scaleY(.98); } to { transform: scaleX(1.12) scaleY(1); } }
+        @keyframes shoot {
+            0%   { transform: scaleY(0) scaleX(.6); opacity: 0; }
+            3%   { opacity: 1; }
+            12%  { transform: scaleY(1) scaleX(1); }
+            30%  { transform: scaleY(1.04) scaleX(1.05); opacity: 1; }
+            48%  { transform: scaleY(.85) scaleX(.9); opacity: .7; }
+            62%  { transform: scaleY(.4) scaleX(.6); opacity: 0; }
+            100% { transform: scaleY(0) scaleX(.6); opacity: 0; }
+        }
+        @keyframes shootc {
+            0%   { transform: scaleY(0) scaleX(.6); opacity: 0; }
+            2%   { opacity: 1; }
+            8%   { transform: scaleY(1) scaleX(1); }
+            20%  { transform: scaleY(1.05) scaleX(1.05); opacity: 1; }
+            30%  { transform: scaleY(.8) scaleX(.9); opacity: .6; }
+            38%  { transform: scaleY(.3) scaleX(.6); opacity: 0; }
+            100% { transform: scaleY(0) scaleX(.6); opacity: 0; }
+        }
+        @keyframes boom {
+            0%   { transform: scaleY(0) scaleX(.6); opacity: 0; }
+            10%  { transform: scaleY(1.1) scaleX(1.1); opacity: 1; }
+            55%  { transform: scaleY(1.05) scaleX(1); opacity: 1; }
+            100% { transform: scaleY(.3) scaleX(.6); opacity: 0; }
+        }
+        .fx.boom .shot { animation: boom 1.7s ease-out 1 both !important; animation-delay: 0s !important; }
+        .fx.boom .fx-stage { animation: shake .5s linear 1; }
+        @keyframes shake { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-3px,2px); }
+                           40% { transform: translate(3px,-2px); } 60% { transform: translate(-2px,-1px); }
+                           80% { transform: translate(2px,1px); } }
+
+        /* Silueta del escenario (SVG estático + luces) */
+        .fx-stage { position: absolute; inset: 0; width: 100%; height: 100%; }
+        .fx-stage .rim { stroke: rgba(255,130,40,.38); stroke-width: 1.2; }
+        .fx-stage .blink { animation: blink 2.4s ease-in-out infinite alternate; }
+        .fx-stage .blink2 { animation: blink 1.7s ease-in-out infinite alternate-reverse; }
+        @keyframes blink { from { opacity: .35; } to { opacity: 1; } }
+        .fx-stage .fan { transform-box: fill-box; transform-origin: center; animation: spin 2.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .fx-stage .crowd1 { animation: bob 1.1s ease-in-out infinite alternate; }
+        .fx-stage .crowd2 { animation: bob 1.4s ease-in-out infinite alternate-reverse; }
+        @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-4px); } }
+
+        /* Resplandor de la pirotecnia */
+        .fx-glow { position: absolute; inset: 0; opacity: .3;
+            background: radial-gradient(70% 55% at 50% 100%, rgba(255,120,20,.65), rgba(255,60,0,.18) 55%, transparent 80%);
+            animation: pulseGlow 4s ease-out infinite; }
+        @keyframes pulseGlow { 0% { opacity: .25; } 6% { opacity: .95; } 30% { opacity: .6; }
+                               62% { opacity: .25; } 100% { opacity: .25; } }
+        #embers { position: absolute; inset: 0; width: 100%; height: 100%; }
+        /* Velo para legibilidad del contenido */
+        .fx-veil { position: absolute; inset: 0; background:
+            radial-gradient(ellipse at 50% 35%, rgba(5,2,1,.20), rgba(5,2,1,.70) 100%),
+            linear-gradient(rgba(5,2,1,.50), rgba(5,2,1,.18) 45%, rgba(5,2,1,.05)); }
+        [data-theme="light"] .fx { filter: saturate(.85); }
+        [data-theme="light"] .fx-veil { background: linear-gradient(rgba(244,234,225,.90), rgba(244,234,225,.78)); }
+        /* Efectos desactivados (botón 🔥 o prefers-reduced-motion) */
+        html.fx-off .shot, html.fx-off .beam { animation: none !important; opacity: 0 !important; }
+        html.fx-off .fx-smoke, html.fx-off .fx-glow,
+        html.fx-off .fx-stage .fan, html.fx-off .fx-stage .blink, html.fx-off .fx-stage .blink2,
+        html.fx-off .fx-stage .crowd1, html.fx-off .fx-stage .crowd2 { animation: none !important; }
+        html.fx-off #embers { display: none; }
+
+        /* ═════════ NAVBAR ═════════ */
         .erp-navbar {
-            background: var(--clr-navy);
-            border-bottom: 3px solid var(--clr-royal);
+            position: sticky; top: 0; z-index: 50;
+            background: rgba(14,7,5,.90); backdrop-filter: blur(8px);
             padding: .65rem 1.5rem;
             display: flex; align-items: center;
             justify-content: space-between; flex-wrap: wrap; gap: .5rem;
             box-shadow: var(--shadow-md);
         }
-        .erp-brand {
-            font-family: 'Playfair Display',Georgia,serif;
-            font-size: 1.3rem; font-weight: 700;
-            color: var(--clr-gold) !important;
-            text-decoration: none; letter-spacing: .04em;
+        .erp-navbar::after {            /* línea de calor animada */
+            content: ''; position: absolute; left: 0; right: 0; bottom: -3px; height: 3px;
+            background: linear-gradient(90deg,#d4260b,#ff7a00,#ffd23f,#ff7a00,#d4260b);
+            background-size: 200% 100%; animation: heat 3s linear infinite;
+            box-shadow: 0 0 14px rgba(255,120,0,.75);
         }
-        .erp-brand span { color: rgba(255,255,255,.7); font-weight: 300; font-size: .85em; }
+        @keyframes heat { to { background-position: -200% 0; } }
+        .erp-brand {
+            font-family: 'Oswald',sans-serif; font-size: 1.35rem; font-weight: 700;
+            color: var(--clr-amber) !important; text-decoration: none;
+            letter-spacing: .12em; text-transform: uppercase;
+            text-shadow: 0 0 12px rgba(255,120,0,.7);
+            animation: neon 2.2s ease-in-out infinite alternate;
+        }
+        .erp-brand span { color: rgba(255,255,255,.65); font-weight: 400; font-size: .72em; text-shadow: none; }
+        @keyframes neon { from { text-shadow: 0 0 6px rgba(255,120,0,.5); }
+                          to   { text-shadow: 0 0 16px rgba(255,160,30,.95), 0 0 30px rgba(255,80,0,.5); } }
         .erp-nav-links { display: flex; align-items: center; gap: .25rem; flex-wrap: wrap; }
         .erp-nav-link {
-            color: rgba(255,255,255,.82) !important;
-            font-size: .88rem; font-weight: 500;
-            padding: .35rem .75rem; border-radius: 6px;
-            text-decoration: none;
-            transition: background .2s, color .2s;
+            color: rgba(255,240,225,.85) !important;
+            font-family: 'Oswald',sans-serif; font-size: .88rem; font-weight: 500;
+            letter-spacing: .08em; text-transform: uppercase;
+            padding: .35rem .75rem; border-radius: 6px; text-decoration: none;
+            position: relative; transition: background .2s, color .2s, box-shadow .2s;
         }
         .erp-nav-link:hover, .erp-nav-link.active {
-            background: var(--clr-royal); color: #FFF !important;
+            background: linear-gradient(180deg,#b3300f,#7a1a08);
+            color: #FFF !important; box-shadow: 0 0 14px rgba(255,90,10,.5);
+            text-shadow: none;
         }
-        .theme-toggle {
-            background: var(--clr-gold); color: var(--clr-navy);
-            border: none; border-radius: 50%;
-            width: 32px; height: 32px; font-size: .9rem;
-            cursor: pointer; transition: transform .2s;
+        .fx-btn, .theme-toggle {
+            background: linear-gradient(180deg,var(--clr-amber),var(--clr-gold)); color: #1b0d09;
+            border: none; border-radius: 50%; width: 32px; height: 32px; font-size: .9rem;
+            cursor: pointer; transition: transform .2s, box-shadow .2s;
         }
-        .theme-toggle:hover { transform: rotate(20deg); }
-        /* CONTENIDO */
+        .fx-btn:hover, .theme-toggle:hover { transform: rotate(20deg) scale(1.08); box-shadow: var(--glow); }
+
+        /* ═════════ CONTENIDO ═════════ */
         .erp-main { padding: 2rem 0; min-height: calc(100vh - 110px); }
+
         /* CARDS */
         .erp-card {
-            background: var(--clr-surface);
-            border: 1px solid var(--clr-border);
-            border-radius: 12px; box-shadow: var(--shadow-sm);
-            padding: 1.5rem; margin-bottom: 1.5rem;
-            transition: box-shadow .2s;
+            position: relative;
+            background: var(--clr-surface); backdrop-filter: blur(6px);
+            border: 1px solid var(--clr-border); border-radius: 12px;
+            box-shadow: var(--shadow-sm); padding: 1.5rem; margin-bottom: 1.5rem;
+            transition: box-shadow .25s, transform .25s, border-color .25s;
         }
-        .erp-card:hover { box-shadow: var(--shadow-md); }
+        .erp-card::before {             /* filo de brasa superior */
+            content: ''; position: absolute; left: 12px; right: 12px; top: -1px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--clr-gold), transparent); opacity: .7;
+        }
+        .erp-card:hover { box-shadow: var(--shadow-md); border-color: rgba(255,122,26,.55); }
         .erp-card-header {
-            background: var(--clr-navy); color: #FFF;
-            border-radius: 10px 10px 0 0;
-            padding: .85rem 1.25rem;
-            border-left: 5px solid var(--clr-royal);
-            font-family: 'Playfair Display',serif;
-            font-size: 1.05rem; letter-spacing: .03em;
+            background: linear-gradient(90deg,#4a1308,#1b0d09 70%); color: #FFF;
+            border-radius: 10px 10px 0 0; padding: .85rem 1.25rem;
+            border-left: 5px solid var(--clr-gold);
+            font-family: 'Oswald',sans-serif; font-size: 1.05rem;
+            letter-spacing: .1em; text-transform: uppercase;
             margin: -1.5rem -1.5rem 1.5rem;
         }
+
         /* TABLAS */
         .erp-table {
             width: 100%; border-collapse: separate; border-spacing: 0;
             border-radius: 10px; overflow: hidden; box-shadow: var(--shadow-sm);
         }
         .erp-table thead th {
-            background: var(--clr-navy); color: #FFF;
-            font-weight: 600; font-size: .82rem;
-            text-transform: uppercase; letter-spacing: .06em;
+            background: var(--clr-navy); color: #ffd9b0;
+            font-family: 'Oswald',sans-serif; font-weight: 500; font-size: .82rem;
+            text-transform: uppercase; letter-spacing: .1em;
             padding: .75rem 1rem; border-bottom: 3px solid var(--clr-gold);
         }
         .erp-table tbody td {
@@ -137,113 +306,133 @@
             border-bottom: 1px solid var(--clr-border); font-size: .9rem;
         }
         .erp-table tbody tr:nth-child(even) td { background: var(--clr-ice); }
-        .erp-table tbody tr:hover td { background: rgba(238,123,123,.14); }
+        .erp-table tbody tr:hover td { background: rgba(255,122,26,.13); }
         .erp-table tfoot td {
-            background: var(--clr-cream); color: var(--clr-royal);
+            background: var(--clr-cream); color: var(--clr-amber);
             font-weight: 700; border-top: 2px solid var(--clr-gold);
         }
-        [data-theme="dark"] .erp-table tfoot td { color: var(--clr-sky); }
+
         /* BOTONES */
         .btn-erp-primary {
-            background: var(--clr-royal); color: #FFF;
+            background: linear-gradient(180deg,#2a120b,#1b0d09); color: #ffd9b0;
             border: 2px solid var(--clr-gold); border-radius: 8px;
             padding: .45rem 1.2rem; font-weight: 600; font-size: .88rem;
             cursor: pointer; text-decoration: none; display: inline-block;
-            transition: background .2s, color .2s;
+            transition: background .2s, color .2s, box-shadow .2s, transform .2s;
         }
-        .btn-erp-primary:hover { background: var(--clr-gold); color: var(--clr-navy); }
+        .btn-erp-primary:hover {
+            background: linear-gradient(180deg,var(--clr-amber),var(--clr-gold));
+            color: #1b0d09; box-shadow: var(--glow); transform: translateY(-1px);
+        }
         .btn-erp-gold {
-            background: var(--clr-gold); color: var(--clr-navy);
-            border: 2px solid var(--clr-navy); border-radius: 8px;
+            background: linear-gradient(180deg,var(--clr-amber),var(--clr-gold)); color: #1b0d09;
+            border: 2px solid #1b0d09; border-radius: 8px;
             padding: .45rem 1.2rem; font-weight: 700;
             cursor: pointer; text-decoration: none; display: inline-block;
-            transition: background .2s;
+            transition: box-shadow .2s, transform .2s, filter .2s;
         }
-        .btn-erp-gold:hover { background: var(--clr-amber); }
+        .btn-erp-gold:hover { box-shadow: var(--glow); transform: translateY(-1px); filter: brightness(1.1); color: #1b0d09; }
         .btn-erp-danger {
-            background: var(--clr-danger); color: #FFF; border: none;
-            border-radius: 8px; padding: .4rem 1rem;
-            font-weight: 600; font-size: .85rem;
+            background: linear-gradient(180deg,#ff6a55,var(--clr-danger)); color: #FFF; border: none;
+            border-radius: 8px; padding: .4rem 1rem; font-weight: 600; font-size: .85rem;
             cursor: pointer; text-decoration: none; display: inline-block;
         }
+        .btn-erp-danger:hover { box-shadow: 0 0 16px rgba(255,70,50,.6); color: #FFF; }
         .btn-erp-sm { padding: .25rem .7rem; font-size: .8rem; }
+
         /* FORMULARIOS */
         .erp-label {
-            font-size: .83rem; font-weight: 600; color: var(--clr-muted);
-            text-transform: uppercase; letter-spacing: .05em;
+            font-size: .8rem; font-weight: 600; color: var(--clr-muted);
+            font-family: 'Oswald',sans-serif;
+            text-transform: uppercase; letter-spacing: .1em;
             display: block; margin-bottom: .3rem;
         }
-        .erp-input {
-            background: var(--clr-surface); border: 1.5px solid var(--clr-border);
+        .erp-input, select.erp-input, textarea.erp-input {
+            background: rgba(10,5,3,.65); border: 1.5px solid var(--clr-border);
             border-radius: 8px; color: var(--clr-text);
             padding: .5rem .85rem; width: 100%; font-size: .93rem;
             transition: border-color .2s, box-shadow .2s;
         }
+        [data-theme="light"] .erp-input { background: #fff; }
         .erp-input:focus {
-            outline: none; border-color: var(--clr-sky);
-            box-shadow: 0 0 0 3px rgba(238,123,123,.25);
+            outline: none; border-color: var(--clr-gold);
+            box-shadow: 0 0 0 3px rgba(255,122,26,.25), 0 0 16px rgba(255,90,10,.25);
         }
+
         /* BADGES */
         .badge-erp-active {
-            background: rgba(46,125,79,.12); color: var(--clr-ok);
-            border: 1px solid currentColor;
-            font-size: .75rem; padding: .2rem .6rem;
-            border-radius: 20px; font-weight: 600;
+            background: rgba(79,214,138,.12); color: var(--clr-ok);
+            border: 1px solid currentColor; font-size: .75rem;
+            padding: .2rem .6rem; border-radius: 20px; font-weight: 600;
         }
         .badge-erp-inactive {
-            background: rgba(214,45,32,.10); color: var(--clr-danger);
-            border: 1px solid currentColor;
-            font-size: .75rem; padding: .2rem .6rem; border-radius: 20px;
+            background: rgba(255,90,69,.1); color: var(--clr-danger);
+            border: 1px solid currentColor; font-size: .75rem;
+            padding: .2rem .6rem; border-radius: 20px;
         }
         .badge-erp-gold {
-            background: var(--clr-cream); color: var(--clr-royal);
-            border: 1px solid var(--clr-gold);
-            font-size: .75rem; padding: .2rem .7rem;
-            border-radius: 20px; font-weight: 700;
+            background: var(--clr-cream); color: var(--clr-amber);
+            border: 1px solid var(--clr-gold); font-size: .75rem;
+            padding: .2rem .7rem; border-radius: 20px; font-weight: 700;
+            box-shadow: 0 0 10px rgba(255,122,26,.18);
         }
-        [data-theme="dark"] .badge-erp-gold { color: var(--clr-sky); }
+        [data-theme="light"] .badge-erp-gold { color: var(--clr-gold); }
+
         /* ALERTAS */
         .erp-alert-danger {
-            background: rgba(214,45,32,.08); border: 1px solid rgba(214,45,32,.3);
-            border-left: 5px solid var(--clr-danger); border-radius: 8px;
-            padding: 1rem 1.25rem;
+            background: rgba(255,90,69,.10); border: 1px solid rgba(255,90,69,.35);
+            border-left: 5px solid var(--clr-danger); border-radius: 8px; padding: 1rem 1.25rem;
         }
         .erp-alert-info {
-            background: var(--clr-ice); border: 1px solid var(--clr-border);
-            border-left: 5px solid var(--clr-sky); border-radius: 8px;
-            padding: 1rem 1.25rem;
+            background: var(--clr-cream); border: 1px solid var(--clr-border);
+            border-left: 5px solid var(--clr-gold); border-radius: 8px; padding: 1rem 1.25rem;
         }
         .erp-alert-success {
-            background: rgba(46,125,79,.08); border: 1px solid rgba(46,125,79,.3);
-            border-left: 5px solid var(--clr-ok); border-radius: 8px;
-            padding: 1rem 1.25rem;
+            background: rgba(79,214,138,.09); border: 1px solid rgba(79,214,138,.35);
+            border-left: 5px solid var(--clr-ok); border-radius: 8px; padding: 1rem 1.25rem;
         }
+
         /* TÍTULO DE PÁGINA */
         .erp-page-title {
             display: flex; align-items: center; gap: 1rem;
             margin-bottom: 1.5rem; padding-bottom: .75rem;
-            border-bottom: 2px solid var(--clr-border);
+            border-bottom: 2px solid var(--clr-border); position: relative;
+        }
+        .erp-page-title::after {
+            content: ''; position: absolute; left: 0; bottom: -2px; height: 2px; width: 140px;
+            background: linear-gradient(90deg,var(--clr-amber),var(--clr-gold),transparent);
+            box-shadow: 0 0 10px rgba(255,122,26,.8);
         }
         .erp-page-title h2 {
-            font-family: 'Playfair Display',serif;
-            font-size: 1.6rem; color: var(--clr-royal); margin: 0;
+            font-size: 1.7rem; color: var(--clr-navy); margin: 0;
+            text-transform: uppercase; letter-spacing: .1em;
         }
-        [data-theme="dark"] .erp-page-title h2 { color: var(--clr-sky); }
+        [data-theme="dark"] .erp-page-title h2 { color: var(--clr-amber); text-shadow: 0 0 14px rgba(255,120,0,.45); }
+
         /* CÓDIGO */
         code, .mono {
             font-family: 'JetBrains Mono',Consolas,monospace;
             font-size: .85em; color: var(--clr-royal);
             background: var(--clr-ice); padding: .1em .4em; border-radius: 4px;
         }
-        [data-theme="dark"] code,
-        [data-theme="dark"] .mono {
-            color: var(--clr-sky); background: rgba(240,138,138,.14);
+        [data-theme="dark"] code, [data-theme="dark"] .mono {
+            color: var(--clr-sky); background: rgba(255,122,26,.12);
         }
+
+        /* UTILIDADES */
+        .erp-module-card { transition: transform .2s, box-shadow .2s; cursor: pointer; }
+        .erp-module-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+        .text-gold { color: var(--clr-gold) !important; }
+        .text-navy { color: var(--clr-navy) !important; }
+        .bg-navy { background: var(--clr-navy) !important; }
+        .border-gold { border-color: var(--clr-gold) !important; }
+
         /* FOOTER */
         .erp-footer {
-            background: var(--clr-navy); color: rgba(255,255,255,.6);
-            text-align: center; font-size: .78rem;
-            padding: .75rem; border-top: 2px solid var(--clr-royal);
+            position: relative; background: rgba(14,7,5,.92); color: rgba(255,230,210,.6);
+            text-align: center; font-size: .78rem; letter-spacing: .06em;
+            padding: .75rem; border-top: 2px solid var(--clr-gold);
+            box-shadow: 0 -6px 24px rgba(255,90,10,.18);
         }
     </style>
     {% block extra_css %}{% endblock %}
@@ -251,35 +440,136 @@
 
 <body>
 
-<!-- NAVBAR -->
+<!-- ═════════ FONDO ANIMADO: ESCENARIO EN LLAMAS ═════════ -->
+<div class="fx" id="fx" aria-hidden="true">
+    <div class="fx-sky"></div>
+    <div class="fx-smoke s1"></div>
+    <div class="fx-smoke s2"></div>
+    <div id="beams"></div>
+    <div class="fx-flames" id="flamesBack"></div>
+
+    <!-- Silueta del escenario: torre central, torres laterales con ventiladores, muro de bocinas y público -->
+    <svg class="fx-stage" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMax slice"
+         xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <pattern id="pSpk" width="12" height="12" patternUnits="userSpaceOnUse">
+                <rect width="12" height="12" fill="#0d0705"/>
+                <circle cx="6" cy="6" r="4" fill="none" stroke="#2c150b" stroke-width="1"/>
+                <circle cx="6" cy="6" r="1.4" fill="#4a2410"/>
+            </pattern>
+            <pattern id="pTruss" width="16" height="16" patternUnits="userSpaceOnUse">
+                <rect width="16" height="16" fill="#0a0504"/>
+                <path d="M0 0 L16 16 M16 0 L0 16" stroke="#2a140a" stroke-width="1.2"/>
+            </pattern>
+            <pattern id="pCrowd" width="38" height="30" patternUnits="userSpaceOnUse">
+                <path d="M-2 30 Q9 12 20 30Z M18 30 Q29 16 40 30Z" fill="#050202"/>
+                <circle cx="9" cy="10" r="6.5" fill="#050202"/>
+                <circle cx="29" cy="14" r="6.5" fill="#050202"/>
+                <path d="M33 14 L36 1" stroke="#050202" stroke-width="2.4" stroke-linecap="round"/>
+            </pattern>
+            <pattern id="pCrowdFar" width="30" height="24" patternUnits="userSpaceOnUse">
+                <path d="M-2 24 Q7 10 16 24Z M14 24 Q23 12 32 24Z" fill="#160a06"/>
+                <circle cx="7" cy="8" r="5" fill="#160a06"/>
+                <circle cx="23" cy="11" r="5" fill="#160a06"/>
+            </pattern>
+            <linearGradient id="gHeat" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0" stop-color="#ff6a00" stop-opacity=".55"/>
+                <stop offset="1" stop-color="#ff6a00" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="gStrip" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#d4260b"/><stop offset=".5" stop-color="#ffd23f"/>
+                <stop offset="1" stop-color="#d4260b"/>
+            </linearGradient>
+            <!-- Torre lateral (se reutiliza espejada) -->
+            <g id="sideTower">
+                <rect x="172" y="268" width="56" height="204" fill="url(#pSpk)" class="rim"/>
+                <rect x="166" y="258" width="68" height="12" fill="#0b0605" class="rim"/>
+                <circle cx="200" cy="232" r="34" fill="#0b0605" class="rim"/>
+                <circle cx="200" cy="232" r="26" fill="none" stroke="#3a1a0c" stroke-width="2"/>
+                <circle cx="200" cy="232" r="15" fill="none" stroke="#4a2410" stroke-width="1.5"/>
+                <g class="fan" fill="#2a1409">
+                    <path d="M200 232 L194 208 Q200 204 206 208Z"/>
+                    <path d="M200 232 L224 226 Q227 232 224 238Z"/>
+                    <path d="M200 232 L206 256 Q200 260 194 256Z"/>
+                    <path d="M200 232 L176 238 Q173 232 176 226Z"/>
+                </g>
+                <circle cx="200" cy="232" r="4" fill="#ff7a1a" class="blink"/>
+                <rect x="170" y="270" width="2.5" height="200" fill="#ff7a1a" opacity=".5" class="blink2"/>
+                <rect x="227.5" y="270" width="2.5" height="200" fill="#ff7a1a" opacity=".5" class="blink2"/>
+            </g>
+        </defs>
+
+        <!-- Cerchas laterales -->
+        <rect x="8" y="190" width="34" height="282" fill="url(#pTruss)" class="rim"/>
+        <rect x="958" y="190" width="34" height="282" fill="url(#pTruss)" class="rim"/>
+
+        <!-- Muro de bocinas -->
+        <rect x="60" y="372" width="880" height="100" fill="url(#pSpk)" class="rim"/>
+        <circle cx="345" cy="412" r="24" fill="#0b0605" class="rim"/>
+        <circle cx="345" cy="412" r="17" fill="none" stroke="#3a1a0c" stroke-width="2"/>
+        <g class="fan" fill="#2a1409">
+            <path d="M345 412 L341 396 Q345 393 349 396Z"/><path d="M345 412 L361 408 Q364 412 361 416Z"/>
+            <path d="M345 412 L349 428 Q345 431 341 428Z"/><path d="M345 412 L329 416 Q326 412 329 408Z"/>
+        </g>
+        <circle cx="655" cy="412" r="24" fill="#0b0605" class="rim"/>
+        <circle cx="655" cy="412" r="17" fill="none" stroke="#3a1a0c" stroke-width="2"/>
+        <g class="fan" fill="#2a1409">
+            <path d="M655 412 L651 396 Q655 393 659 396Z"/><path d="M655 412 L671 408 Q674 412 671 416Z"/>
+            <path d="M655 412 L659 428 Q655 431 651 428Z"/><path d="M655 412 L639 416 Q636 412 639 408Z"/>
+        </g>
+
+        <!-- Torres laterales -->
+        <use href="#sideTower"/>
+        <use href="#sideTower" transform="translate(600 0)"/>
+
+        <!-- Torre central -->
+        <polygon points="497,120 503,120 508,250 492,250" fill="#0b0605" class="rim"/>
+        <circle cx="500" cy="116" r="3.5" fill="#ff3b1a" class="blink"/>
+        <rect x="478" y="240" width="44" height="42" fill="#0b0605" class="rim"/>
+        <polygon points="440,280 560,280 566,460 434,460" fill="url(#pSpk)" class="rim"/>
+        <rect x="474" y="296" width="52" height="52" fill="rgba(255,90,10,.08)" stroke="#ff7a1a" stroke-width="3" class="blink"/>
+        <path d="M500 304 L518 322 L500 340 L482 322Z" fill="none" stroke="#ffb347" stroke-width="2" class="blink2"/>
+        <rect x="438" y="282" width="2.5" height="176" fill="#ff7a1a" opacity=".55" class="blink2"/>
+        <rect x="559.5" y="282" width="2.5" height="176" fill="#ff7a1a" opacity=".55" class="blink2"/>
+
+        <!-- Calor sobre el escenario + tarima con tira de luces -->
+        <rect x="0" y="330" width="1000" height="150" fill="url(#gHeat)"/>
+        <rect x="0" y="470" width="1000" height="34" fill="#080403"/>
+        <rect x="0" y="470" width="1000" height="3.5" fill="url(#gStrip)" class="blink"/>
+
+        <!-- Público -->
+        <g class="crowd2"><rect x="-40" y="500" width="1080" height="70" fill="url(#pCrowdFar)"/></g>
+        <g class="crowd1"><rect x="-40" y="522" width="1080" height="60" fill="url(#pCrowd)"/></g>
+    </svg>
+
+    <!-- Fuego frontal (delante del escenario) -->
+    <div class="fx-flames" id="flamesFront"></div>
+    <div class="fx-glow"></div>
+    <canvas id="embers"></canvas>
+    <div class="fx-veil"></div>
+</div>
+
+<!-- ═════════ NAVBAR ═════════ -->
 <nav class="erp-navbar">
-    <a class="erp-brand" href="/">📦 ERP Django <span>· CoyoTecs</span></a>
+    <a class="erp-brand" href="/">🔥 ERP Django <span>· UTEC Celaya</span></a>
     <div class="erp-nav-links">
-        <a href="{% url 'productos:lista' %}"
+        <a href="{% url 'productos:inicio' %}"
            class="erp-nav-link {% block nav_productos %}{% endblock %}">Productos</a>
-        <a href="{% url 'clientes:lista' %}"
+        <a href="{% url 'clientes:inicio' %}"
            class="erp-nav-link {% block nav_clientes %}{% endblock %}">Clientes</a>
-        <a href="{% url 'proveedores:lista' %}"
+        <a href="{% url 'proveedores:inicio' %}"
            class="erp-nav-link {% block nav_proveedores %}{% endblock %}">Proveedores</a>
-        <a href="{% url 'ventas:lista' %}"
+        <a href="{% url 'ventas:inicio' %}"
            class="erp-nav-link {% block nav_ventas %}{% endblock %}">Ventas</a>
         <a href="{% url 'reportes:inicio' %}"
            class="erp-nav-link {% block nav_reportes %}{% endblock %}">Reportes</a>
-
-        <!-- ▼▼▼ W13 5.3: enlace al catálogo + contador del carrito ▼▼▼ -->
         <a href="{% url 'catalogo:catalogo' %}"
-           class="erp-nav-link {% block nav_catalogo %}{% endblock %}">
-            🛒 Tienda
-        </a>
+           class="erp-nav-link {% block nav_catalogo %}{% endblock %}">🛒 Tienda</a>
         {% if carrito_total_items > 0 %}
-        <a href="{% url 'catalogo:carrito' %}"
-           class="erp-nav-link"
-           style="position:relative;">
+        <a href="{% url 'catalogo:carrito' %}" class="erp-nav-link" style="position:relative;">
             🛍️ ({{ carrito_total_items }})
         </a>
         {% endif %}
-        <!-- ▲▲▲ FIN W13 5.3 ▲▲▲ -->
-
         <a href="/admin/" class="erp-nav-link">Admin</a>
         {% if user.is_authenticated %}
             <a href="/accounts/logout/" class="erp-nav-link">
@@ -288,7 +578,9 @@
         {% else %}
             <a href="/accounts/login/" class="erp-nav-link">Entrar</a>
         {% endif %}
-        <button class="theme-toggle" id="themeBtn" title="Modo claro/oscuro">🌙</button>
+        <button class="fx-btn" id="boomBtn" title="¡Pirotecnia!">💥</button>
+        <button class="fx-btn" id="fxBtn" title="Activar / desactivar efectos">🔥</button>
+        <button class="theme-toggle" id="themeBtn" title="Modo Inferno / Ceniza">🌙</button>
     </div>
 </nav>
 
@@ -315,31 +607,198 @@
 
 <!-- FOOTER -->
 <footer class="erp-footer">
-    ERP Django · Django 4.2 LTS · Fable 5 AzulERP · UTEC Celaya · Espiral 1
+    ERP Django · Django 4.2 LTS · Fable 5 Inferno · UTEC Celaya · Espiral 1
 </footer>
 
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
 </script>
 
-<!-- Toggle modo noche -->
+<!-- Toggle modo Inferno / Ceniza -->
 <script>
 (function () {
     var btn  = document.getElementById('themeBtn');
     var html = document.documentElement;
     var icons = { light: '🌙', dark: '☀️' };
-    var saved = localStorage.getItem('erpTheme') || 'light';
-    html.setAttribute('data-theme', saved);
-    if (btn) btn.textContent = icons[saved];
+    var saved = html.getAttribute('data-theme') || 'dark';
     if (btn) {
+        btn.textContent = icons[saved];
         btn.addEventListener('click', function () {
-            var current = html.getAttribute('data-theme');
-            var next    = current === 'light' ? 'dark' : 'light';
+            var next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
             html.setAttribute('data-theme', next);
             btn.textContent = icons[next];
-            localStorage.setItem('erpTheme', next);
+            try { localStorage.setItem('erpTheme', next); } catch (e) {}
         });
     }
+})();
+</script>
+
+<!-- Motor del escenario: posiciona llamas, reflectores y chispas -->
+<script>
+(function () {
+    var html = document.documentElement;
+    var fx = document.getElementById('fx');
+    var back = document.getElementById('flamesBack');
+    var front = document.getElementById('flamesFront');
+    var beamsBox = document.getElementById('beams');
+    var cv = document.getElementById('embers');
+    var ctx = cv.getContext('2d');
+
+    /* ── Geometría en coordenadas del SVG (1000 x 560) ── */
+    var list = [];
+    var L = [[95,150,'b'],[145,185,'a'],[255,185,'a'],[305,150,'b'],[355,120,'b']];
+    var LOW = [[250,80],[310,95],[380,85],[430,70]];
+    L.forEach(function (f) {
+        list.push({x:f[0],      y:395, h:f[1], g:f[2]});
+        list.push({x:1000-f[0], y:395, h:f[1], g:f[2]});
+    });
+    LOW.forEach(function (f) {
+        list.push({x:f[0],      y:468, h:f[1], g:'c'});
+        list.push({x:1000-f[0], y:468, h:f[1], g:'c'});
+    });
+    list.push({x:500, y:250, h:175, g:'d'});
+
+    list.forEach(function (f) {
+        var d = document.createElement('div');
+        d.className = 'shot g' + f.g;
+        d.style.setProperty('--k', Math.floor(Math.random() * 9));
+        d.innerHTML = '<b></b><u></u><i></i>';
+        (f.g === 'c' ? front : back).appendChild(d);
+        f.el = d;
+    });
+
+    var BEAMS = [[500,255,14],[500,255,26],[200,232,20],[800,232,20]];
+    var beams = BEAMS.map(function (b, i) {
+        var d = document.createElement('div');
+        d.className = 'beam';
+        d.style.setProperty('--r', b[2] + 'deg');
+        d.style.animationDuration = (6 + i * 1.7) + 's';
+        d.style.animationDelay = (-i * 1.3) + 's';
+        beamsBox.appendChild(d);
+        return {el: d, x: b[0], y: b[1]};
+    });
+
+    var S = 1, OX = 0, OY = 0;
+    function layout() {
+        var w = innerWidth, h = innerHeight;
+        S = Math.max(w / 1000, h / 560);          /* igual que preserveAspectRatio slice */
+        OX = (w - 1000 * S) / 2;
+        OY = h - 560 * S;                         /* alineado abajo (YMax) */
+        list.forEach(function (f) {
+            var fw = f.h * S * .34, fh = f.h * S, st = f.el.style;
+            f.cx  = OX + f.x * S;
+            f.top = OY + (f.y - f.h) * S;
+            st.width  = fw + 'px';  st.height = fh + 'px';
+            st.left   = (f.cx - fw / 2) + 'px';
+            st.top    = f.top + 'px';
+        });
+        beams.forEach(function (b) {
+            var bw = 150 * S, bh = 500 * S, st = b.el.style;
+            st.width = bw + 'px'; st.height = bh + 'px';
+            st.left = (OX + b.x * S - bw / 2) + 'px';
+            st.top  = (OY + b.y * S - bh) + 'px';
+        });
+        var dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+        DPR = dpr; MAX = Math.min(170, Math.round(innerWidth / 8));
+    }
+
+    /* ── Chispas (canvas) ── */
+    var DPR = 1, MAX = 100, P = [], raf = 0, last = 0, wind = 0, t0 = performance.now(), fired = {};
+    function spark(x, y, vx, vy, big) {
+        if (P.length > MAX * 2.4) return;
+        P.push({x:x*DPR, y:y*DPR, vx:vx*DPR, vy:vy*DPR,
+                r:(big ? 1.7 : .7 + Math.random() * 1.4) * DPR,
+                l:1, d:.004 + Math.random() * .009, h:14 + Math.random() * 34, p:Math.random() * 6.28});
+    }
+    function burst(x, y, n, pw) {
+        for (var i = 0; i < n; i++) {
+            var a = -Math.PI / 2 + (Math.random() - .5) * 1.4, v = (1.5 + Math.random() * 3.5) * (pw || 1);
+            spark(x + (Math.random() - .5) * 14, y, Math.cos(a) * v, Math.sin(a) * v, Math.random() < .2);
+        }
+    }
+    function salvo(groups) {
+        setTimeout(function () {
+            list.forEach(function (f) {
+                if (groups.indexOf(f.g) > -1) burst(f.cx, f.top + f.h * S * .18, f.g === 'd' ? 16 : 9, 1);
+            });
+        }, 260);
+    }
+    function schedule(now) {
+        var e = now - t0, c;
+        c = Math.floor(e / 4000);
+        if (fired.o !== c && e % 4000 < 120) { fired.o = c; salvo(['a', 'b']); }
+        c = Math.floor((e + 2000) / 4000);
+        if (fired.l !== c && (e + 2000) % 4000 < 120) { fired.l = c; salvo(['c']); }
+        if (e >= 4000) {
+            c = Math.floor((e - 4000) / 8000);
+            if (fired.c !== c && (e - 4000) % 8000 < 120) { fired.c = c; salvo(['d']); }
+        }
+    }
+    function frame(now) {
+        raf = requestAnimationFrame(frame);
+        var dt = Math.min(now - last, 50) / 16.7; last = now;
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        ctx.globalCompositeOperation = 'lighter';
+        if (P.length < MAX && Math.random() < .5)
+            spark(Math.random() * innerWidth, innerHeight * (.72 + Math.random() * .3),
+                  (Math.random() - .5) * .6, -(.5 + Math.random() * 1.4));
+        schedule(now);
+        for (var i = P.length - 1; i >= 0; i--) {
+            var p = P[i];
+            p.p += .08 * dt;
+            p.vx = p.vx * .985 + (Math.sin(p.p) * .02 + wind * .012) * dt;
+            p.vy = p.vy * .985 - .012 * dt;
+            p.x += p.vx * dt; p.y += p.vy * dt; p.l -= p.d * dt;
+            if (p.l <= 0 || p.y < -20) { P.splice(i, 1); continue; }
+            var a = p.l * (.65 + .35 * Math.sin(p.p * 3));
+            ctx.fillStyle = 'hsla(' + p.h + ',100%,' + (48 + p.l * 22) + '%,' + (a * .16) + ')';
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r * 3.4, 0, 6.283); ctx.fill();
+            ctx.fillStyle = 'hsla(' + (p.h + 10) + ',100%,70%,' + a + ')';
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.283); ctx.fill();
+        }
+    }
+    function start() {
+        if (raf || html.classList.contains('fx-off')) return;
+        last = performance.now(); raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+        cancelAnimationFrame(raf); raf = 0; P.length = 0;
+        ctx.clearRect(0, 0, cv.width, cv.height);
+    }
+
+    /* ── Controles ── */
+    var fxBtn = document.getElementById('fxBtn');
+    var boomBtn = document.getElementById('boomBtn');
+    function paintFxBtn() {
+        var off = html.classList.contains('fx-off');
+        if (fxBtn) { fxBtn.textContent = off ? '🧊' : '🔥'; fxBtn.style.opacity = off ? .7 : 1; }
+    }
+    function setFx(on) {
+        html.classList.toggle('fx-off', !on);
+        try { localStorage.setItem('erpFx', on ? 'on' : 'off'); } catch (e) {}
+        paintFxBtn();
+        on ? start() : stop();
+    }
+    function boom() {
+        if (html.classList.contains('fx-off')) setFx(true);
+        fx.classList.remove('boom'); void fx.offsetWidth; fx.classList.add('boom');
+        setTimeout(function () { fx.classList.remove('boom'); }, 1900);
+        salvo(['a', 'b', 'c', 'd']);
+        setTimeout(function () { salvo(['a', 'b', 'c', 'd']); }, 500);
+    }
+    window.erpBoom = boom;                       /* usable desde otras plantillas */
+    if (fxBtn) fxBtn.addEventListener('click', function () { setFx(html.classList.contains('fx-off')); });
+    if (boomBtn) boomBtn.addEventListener('click', boom);
+    addEventListener('pointermove', function (e) { wind = (e.clientX / innerWidth - .5) * 2; }, {passive: true});
+    addEventListener('pointerdown', function (e) {
+        if (html.classList.contains('fx-off') || e.target.closest('a,button,input,select,textarea,label')) return;
+        burst(e.clientX, e.clientY, 14, .6);
+    });
+    addEventListener('resize', layout);
+    document.addEventListener('visibilitychange', function () { document.hidden ? stop() : start(); });
+
+    layout(); paintFxBtn(); start();
 })();
 </script>
 {% block extra_js %}{% endblock %}

@@ -2,32 +2,45 @@
 {% load allauth %}
 {% block title %}Iniciar sesión{% endblock %}
 
-{% block content %}
-<div style="display:flex;justify-content:center;
-            align-items:center;min-height:60vh;">
-    <div class="erp-card" style="width:100%;max-width:420px;">
-        <div class="erp-card-header" style="text-align:center;">
-            🔐 Iniciar sesión · ERP Django
-        </div>
+{% block extra_css %}
+<style>
+    .login-wrap { display: flex; justify-content: center; align-items: center; min-height: 62vh; }
+    .login-card { width: 100%; max-width: 430px; box-shadow: 0 0 60px rgba(255,90,10,.28), var(--shadow-md); }
+    .login-card .erp-card-header { text-align: center; }
+    .login-flame {
+        text-align: center; font-size: 2.6rem; line-height: 1; margin: -.2rem 0 .8rem;
+        animation: lf 1.1s ease-in-out infinite alternate;
+    }
+    @keyframes lf {
+        from { transform: scale(.95); filter: drop-shadow(0 0 6px rgba(255,120,0,.6)); }
+        to   { transform: scale(1.12); filter: drop-shadow(0 0 18px rgba(255,170,30,.95)); }
+    }
+</style>
+{% endblock %}
 
-        <form method="post" action="{% url 'account_login' %}"
-              style="margin-top:.5rem;">
+{% block content %}
+<div class="login-wrap">
+    <div class="erp-card login-card">
+        <div class="erp-card-header">🔐 Iniciar sesión · ERP Django</div>
+        <div class="login-flame">🔥</div>
+
+        <form method="post" action="{% url 'account_login' %}" style="margin-top:.5rem;">
             {% csrf_token %}
+            {% if redirect_field_value %}
+            <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+            {% endif %}
 
             <!-- Username -->
             <div class="mb-4">
                 <label class="erp-label">Usuario</label>
-                <input type="text" name="login"
-                       class="erp-input"
-                       placeholder="Tu nombre de usuario"
-                       autofocus required>
+                <input type="text" name="login" class="erp-input"
+                       placeholder="Tu nombre de usuario" autofocus required>
             </div>
 
             <!-- Password -->
             <div class="mb-4">
                 <label class="erp-label">Contraseña</label>
-                <input type="password" name="password"
-                       class="erp-input"
+                <input type="password" name="password" class="erp-input"
                        placeholder="••••••••" required>
             </div>
 
@@ -40,16 +53,14 @@
 
             <!-- Botón -->
             <button type="submit" class="btn-erp-gold"
-                    style="width:100%;padding:.6rem;font-size:1rem;">
+                    style="width:100%;padding:.6rem;font-size:1rem;letter-spacing:.12em;text-transform:uppercase;">
                 Entrar
             </button>
         </form>
 
-        <p style="text-align:center;margin-top:1rem;
-                  color:var(--clr-muted);font-size:.88rem;">
+        <p style="text-align:center;margin-top:1rem;color:var(--clr-muted);font-size:.88rem;">
             ¿No tienes cuenta?
-            <a href="{% url 'account_signup' %}"
-               style="color:var(--clr-sky);">Regístrate aquí</a>
+            <a href="{% url 'account_signup' %}">Regístrate aquí</a>
         </p>
     </div>
 </div>
