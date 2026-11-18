@@ -263,3 +263,26 @@ LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/productos/'
 LOGOUT_REDIRECT_URL = '/'
+
+# ── CELERY — Cola de tareas asíncronas ────────────────────────────
+CELERY_BROKER_URL        = env('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND    = env('REDIS_URL', default='redis://localhost:6379/0')
+
+CELERY_ACCEPT_CONTENT    = ['json']
+CELERY_TASK_SERIALIZER   = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_TIMEZONE = TIME_ZONE   # 'America/Mexico_City'
+
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
+CELERY_TASK_SOFT_TIME_LIMIT = 300   # 5 minutos
+CELERY_TASK_TIME_LIMIT      = 360   # 6 minutos (límite duro)
+
+CELERY_TASK_DEFAULT_QUEUE = 'erp_django'
+
+# Modo eager: ejecuta las tareas en el mismo proceso, sin Redis ni worker.
+# Déjalo en False cuando tengas Redis; actívalo en .env (CELERY_EAGER=True)
+# solo si no puedes instalar ningún broker.
+CELERY_TASK_ALWAYS_EAGER     = env.bool('CELERY_EAGER', default=False)
+CELERY_TASK_EAGER_PROPAGATES = True

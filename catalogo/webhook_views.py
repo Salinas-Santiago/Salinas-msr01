@@ -20,7 +20,7 @@ Compatibilidad:
     funcionando.
 """
 import logging
-
+from ventas.tasks import enviar_confirmacion_pedido
 import stripe
 from django.conf import settings
 from django.db import transaction
@@ -89,42 +89,29 @@ def stripe_webhook(request) -> HttpResponse:
 # ── HANDLERS INTERNOS ──────────────────────────────────────────────────────
 
 def _manejar_pago_exitoso(payment_intent: dict) -> None:
-    """Marca el Pedido como 'pagado' y descuenta el stock.
-
-    Todo ocurre en una transacción: si falla el descuento de stock,
-    el pedido NO queda marcado como pagado y Stripe reintentará.
-    """
     pedido_id = _extraer_pedido_id(payment_intent)
     if pedido_id is None:
         return
 
     try:
-        with transaction.atomic():
-            try:
-                pedido = Pedido.objects.select_for_update().get(pk=pedido_id)
-            except Pedido.DoesNotExist:
-                logger.error(
-                    f'Webhook: Pedido {pedido_id} no encontrado en BD.'
-                )
-                return
+        pedido = Pedido.objects.get(pk=pedido_id)
+    except Pedido.DoesNotExist:
+        logger.error(f'Webhook: Pedido {pedido_id} no encontrado en BD.')
+        return
 
-            if pedido.estado != 'pagado':
-                pedido.estado = 'pagado'
-                pedido.save(update_fields=['estado'])
-                logger.info(
-                    f'Pedido {pedido.numero_pedido} actualizado a "pagado".'
-                )
-                _descontar_stock(pedido)
-            else:
-                logger.info(
-                    f'Pedido {pedido.numero_pedido} ya estaba pagado — '
-                    f'idempotente, sin cambios.'
-                )
-    except Exception:
-        logger.exception(
-            f'Webhook: error procesando pago del pedido {pedido_id}.'
+    if pedido.estado != 'pagado':
+        pedido.estado = 'pagado'
+        pedido.save(update_fields=['estado'])
+        logger.info(f'Pedido {pedido.numero_pedido} actualizado a "pagado".')
+        _descontar_stock(pedido)
+
+        # NUEVO W16: el webhook es la fuente más confiable para el correo
+        enviar_confirmacion_pedido.delay(pedido.pk)
+    else:
+        logger.info(
+            f'Pedido {pedido.numero_pedido} ya estaba pagado — '
+            f'idempotente, sin cambios.'
         )
-        raise
 
 
 def _manejar_pago_fallido(payment_intent: dict) -> None:

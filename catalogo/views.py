@@ -15,6 +15,7 @@ Estructura del carrito en sesión:
         ...
     }
 """
+from ventas.tasks import enviar_confirmacion_pedido
 from decimal import Decimal
 
 from django.contrib import messages
@@ -289,16 +290,24 @@ def checkout(request):
     })
 
 def pago_exitoso(request, pedido_id: int):
-    """Confirmación: vacía el carrito y muestra el pedido."""
+    """Confirmación post-pago. W16: dispara la tarea con .delay()."""
+    from django.shortcuts import get_object_or_404
     pedido = get_object_or_404(Pedido, pk=pedido_id)
 
     _guardar_carrito(request, {})
+
+    # NUEVO W16: encola la tarea en Redis sin bloquear la respuesta HTTP
+    enviar_confirmacion_pedido.delay(pedido.pk)
+
     messages.success(
         request,
         f'¡Pago exitoso! Tu pedido {pedido.numero_pedido} '
-        f'está confirmado. Total: ${pedido.total_pagado}'
+        f'está confirmado. Recibirás un correo de confirmación pronto.'
     )
-    return render(request, 'catalogo/pago_exitoso.html', {'pedido': pedido})
+
+    return render(request, 'catalogo/pago_exitoso.html', {
+        'pedido': pedido,
+    })
 
 
 def pago_error(request):
