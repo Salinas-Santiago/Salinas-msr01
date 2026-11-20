@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Venta #{{ venta.pk }}{% endblock %}
+{% block nav_ventas %}active{% endblock %}
+
+{% block content %}
+<div class="erp-page-title"><h2>🧾 Venta #{{ venta.pk }}</h2></div>
+<div class="erp-card">
+    <p><strong>Cliente:</strong> {{ venta.cliente }}</p>
+    <p><strong>Fecha:</strong> {{ venta.fecha|date:"d/m/Y H:i" }}</p>
+
+    <table class="table">
+        <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th></tr></thead>
+        <tbody>
+        {% for d in venta.detalles.all %}
+            <tr>
+                <td>{{ d.producto.nombre }}</td>
+                <td>{{ d.cantidad }}</td>
+                <td>${{ d.precio_unitario|floatformat:2 }}</td>
+                <td>${{ d.subtotal|floatformat:2 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h4>Total: ${{ venta.total|floatformat:2 }}</h4>
+
+    <a href="{% url 'ventas:pdf' venta.pk %}" class="btn-erp-primary">Descargar Factura PDF</a>
+    <a href="{% url 'ventas:lista' %}" class="btn-erp-primary">← Volver</a>
+</div>
+{% endblock %}
