@@ -1,16 +1,14 @@
-## Sprint Backlog — actualización W17
+## Sprint 5 — Estado final W18
 
-| Tarea | Estado |
-|---|---|
-| pip install celery redis flower | ✅ W16 |
-| core/celery.py + tareas placeholder | ✅ W16 |
-| pip install django-anymail | ✅ W17 |
-| EMAIL_BACKEND por variable de entorno (consola / anymail / SMTP) | ✅ W17 |
-| correo_enviado en Pedido + migración 0004 | ✅ W17 |
-| Template confirmacion_pedido.html + .txt (correo de pago) | ✅ W17 |
-| Template alerta_stock.html + .txt (correo de stock bajo) | ✅ W17 |
-| enviar_confirmacion_pedido: correo real + idempotencia atómica | ✅ W17 |
-| verificar_stock_bajo: alerta al admin | ✅ W17 |
-| Comando probar_correos | ✅ W17 |
-| 9 tests con mail.outbox | ✅ W17 |
-| Celery Beat + tareas programadas | ⏳ W18 |
+| HU | Estado | Pts |
+|---|---|---|
+| HU-E6-01 a HU-E6-06 | ✅ Completadas | 18/18 |
+
+## Hito M6 — ALCANZADO ✅
+- Tareas: ejecutadas sin bloquear la petición
+- Scheduler: CELERY_BEAT_SCHEDULE activo (correr_programadas / Beat)
+- Correo: enviar_confirmacion_pedido → enviado post-pago
+- Alerta: verificar_stock_bajo → correo al admin
+- Reporte: crontab(8,0) → 8:00 AM diario (día anterior)
+- Tests: Ran 172 tests → OK
+- Fecha: ___/___/_____
