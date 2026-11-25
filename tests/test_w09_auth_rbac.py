@@ -47,8 +47,8 @@ class AuthBasicTest(TestCase):
             'login':    'testlogin',
             'password': 'pass123',
         })
-        self.assertRedirects(r, '/productos/',
-                             fetch_redirect_response=False)
+        self.assertRedirects(r, '/',
+                     fetch_redirect_response=False)
 
 
 class PermisosGruposTest(TestCase):

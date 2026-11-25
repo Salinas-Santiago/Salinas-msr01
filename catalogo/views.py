@@ -37,6 +37,17 @@ from .checkout_utils import (
     obtener_o_crear_cliente,
 )
 
+import logging
+
+from django.shortcuts import render, redirect, get_object_or_404
+# ...tus otros imports...
+
+logger = logging.getLogger(__name__)
+
+
+def tu_primera_vista(request):
+    ...
+
 # Clave secreta de Stripe (W14)
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -297,7 +308,10 @@ def pago_exitoso(request, pedido_id: int):
     _guardar_carrito(request, {})
 
     # NUEVO W16: encola la tarea en Redis sin bloquear la respuesta HTTP
-    enviar_confirmacion_pedido.delay(pedido.pk)
+    try:
+        enviar_confirmacion_pedido.delay(pedido.pk)
+    except Exception:
+        logger.exception("No se pudo enviar el correo del pedido %s", pedido.pk)
 
     messages.success(
         request,
