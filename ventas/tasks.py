@@ -80,6 +80,7 @@ def enviar_confirmacion_pedido(self, pedido_id: int) -> dict:
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[pedido.cliente.correo],
         )
+
         correo.attach_alternative(html, "text/html")
         correo.send(fail_silently=False)
 
@@ -120,14 +121,47 @@ def _productos_stock_bajo(umbral=5):
     )
 
 
-def _enviar_alerta_stock(productos):
+def _obtener_destinatarios_stock():
+    """
+    Obtiene los destinatarios de alertas de inventario.
+
+    Orden de prioridad:
+    1. ALERTA_STOCK_DESTINATARIOS
+    2. ADMIN_EMAIL
+    3. ADMINS
+    """
+
     destinatarios = getattr(
         settings,
         "ALERTA_STOCK_DESTINATARIOS",
         [],
-    )
+    ) or []
+
+    if destinatarios:
+        return destinatarios
+
+    admin_email = getattr(settings, "ADMIN_EMAIL", "")
+
+    if admin_email:
+        return [admin_email]
+
+    admins = getattr(settings, "ADMINS", []) or []
+
+    return [
+        email
+        for _, email in admins
+        if email
+    ]
+
+
+def _enviar_alerta_stock(productos):
+    destinatarios = _obtener_destinatarios_stock()
 
     if not productos or not destinatarios:
+        logger.warning(
+            "[Celery] No se envió alerta de stock: "
+            "sin productos o destinatarios."
+        )
         return 0
 
     lineas = [
@@ -142,13 +176,20 @@ def _enviar_alerta_stock(productos):
 
     asunto = "Alerta de inventario bajo"
 
-    return send_mail(
+    enviados = send_mail(
         asunto,
         mensaje,
         settings.DEFAULT_FROM_EMAIL,
         destinatarios,
         fail_silently=False,
     )
+
+    logger.info(
+        "[Celery] Alerta de stock enviada. Correos enviados: %s",
+        enviados,
+    )
+
+    return enviados
 
 
 @shared_task(
@@ -164,13 +205,16 @@ def verificar_stock_bajo(self, umbral: int = 5) -> dict:
         umbral,
     )
 
+    enviados = 0
+
     if productos:
-        _enviar_alerta_stock(productos)
+        enviados = _enviar_alerta_stock(productos)
 
     return {
         "umbral": umbral,
         "total": len(productos),
         "productos": productos,
+        "correos_enviados": enviados,
     }
 
 
@@ -191,7 +235,9 @@ def alertar_stock_tras_venta():
 
     # Enfriamiento de seis horas para evitar correos repetidos
     if cache.get(clave):
-        logger.info("[Celery] Alerta de stock dentro del enfriamiento.")
+        logger.info(
+            "[Celery] Alerta de stock dentro del enfriamiento."
+        )
         return {
             "estado": "skip",
             "razon": "enfriamiento",
@@ -226,9 +272,11 @@ def reporte_ventas_diario(self, dias_atras=0):
     pedidos = Pedido.objects.filter(estado="pagado")
 
     campos_pedido = {f.name for f in Pedido._meta.get_fields()}
+
     campo_fecha_pedido = next(
         (
-            nombre for nombre in (
+            nombre
+            for nombre in (
                 "fecha",
                 "fecha_creacion",
                 "created_at",
@@ -241,14 +289,18 @@ def reporte_ventas_diario(self, dias_atras=0):
 
     if campo_fecha_pedido:
         campo = getattr(Pedido, campo_fecha_pedido).field
+
         if campo.get_internal_type() == "DateTimeField":
             pedidos = pedidos.filter(
                 **{f"{campo_fecha_pedido}__date": fecha}
             )
         else:
-            pedidos = pedidos.filter(**{campo_fecha_pedido: fecha})
+            pedidos = pedidos.filter(
+                **{campo_fecha_pedido: fecha}
+            )
 
     total_pedidos = pedidos.count()
+
     total_facturado = pedidos.aggregate(
         total=Sum("total_pagado")
     )["total"] or Decimal("0.00")
@@ -257,9 +309,11 @@ def reporte_ventas_diario(self, dias_atras=0):
     ventas = Venta.objects.all()
 
     campos_venta = {f.name for f in Venta._meta.get_fields()}
+
     campo_fecha_venta = next(
         (
-            nombre for nombre in (
+            nombre
+            for nombre in (
                 "fecha",
                 "fecha_venta",
                 "created_at",
@@ -272,12 +326,15 @@ def reporte_ventas_diario(self, dias_atras=0):
 
     if campo_fecha_venta:
         campo = getattr(Venta, campo_fecha_venta).field
+
         if campo.get_internal_type() == "DateTimeField":
             ventas = ventas.filter(
                 **{f"{campo_fecha_venta}__date": fecha}
             )
         else:
-            ventas = ventas.filter(**{campo_fecha_venta: fecha})
+            ventas = ventas.filter(
+                **{campo_fecha_venta: fecha}
+            )
 
     detalles = DetalleVenta.objects.filter(venta__in=ventas)
 
@@ -336,7 +393,10 @@ def reporte_ventas_diario(self, dias_atras=0):
             fail_silently=False,
         )
 
-    logger.info("[Celery] Reporte diario generado para %s", fecha_str)
+    logger.info(
+        "[Celery] Reporte diario generado para %s",
+        fecha_str,
+    )
 
     return {
         "fecha": fecha_str,

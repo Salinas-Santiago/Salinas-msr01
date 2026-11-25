@@ -210,60 +210,29 @@ STRIPE_SECRET_KEY = env('STRIPE_SECRET_KEY', default='sk_test_placeholder')
 STRIPE_PUBLISHABLE_KEY = env('STRIPE_PUBLISHABLE_KEY', default='pk_test_placeholder')
 STRIPE_WEBHOOK_SECRET = env('STRIPE_WEBHOOK_SECRET', default='whsec_placeholder')
 
-# core/settings.py — configuración de correo electrónico
+# core/settings.py — Configuración de correo electrónico
 
-# ── CORREO ELECTRÓNICO ────────────────────────────────────────────────────
-# Sin .env: backend de consola (imprime el correo en la terminal).
-# Con .env: anymail+SendGrid (Ruta A) o SMTP de Gmail (Ruta B).
-if DEBUG:
-    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# En desarrollo: consola; en producción: SendGrid
+EMAIL_BACKEND = env(
+    'EMAIL_BACKEND',
+    default='django.core.mail.backends.console.EmailBackend'
+)
 
-# Remitente visible en los correos
 DEFAULT_FROM_EMAIL = env(
     'DEFAULT_FROM_EMAIL',
     default='ERP Django <noreply@erp-django.com>'
 )
 
-# Quién recibe la alerta de stock bajo (uno o varios, separados por coma)
-ALERTA_STOCK_DESTINATARIOS = [
-    c.strip()
-    for c in env('ADMIN_EMAIL', default='admin@erp-django.com').split(',')
-    if c.strip()
+EMAIL_SUBJECT_PREFIX = '[ERP Django] '
+
+ADMINS = [
+    ('Admin ERP', env('ADMIN_EMAIL', default='admin@erp-django.com')),
 ]
 
-# URL base del sitio, para los enlaces dentro de los correos
-SITE_URL = env('SITE_URL', default='http://127.0.0.1:8000')
-
-
-# core/settings.py — tareas programadas (W18)
-
-# Destinatarios del reporte diario (los mismos del administrador)
-REPORTE_VENTAS_DESTINATARIOS = ALERTA_STOCK_DESTINATARIOS
-
-# Zona horaria que usa Celery para interpretar crontab
-# (la guía original usaba CELERY_BEAT_TIMEZONE, que NO existe en Celery)
-CELERY_TIMEZONE = TIME_ZONE   # 'America/Mexico_City'
-
-CELERY_BEAT_SCHEDULE = {
-
-    # Verificar stock bajo cada hora
-    'verificar-stock-bajo-cada-hora': {
-        'task':     'ventas.verificar_stock_bajo',
-        'schedule': timedelta(hours=1),
-        'args':     (5,),   # umbral = 5 unidades
-        'options':  {'queue': 'erp_django'},
-    },
-
-    # Reporte de ventas a las 8:00 AM (hora de México); reporta AYER
-    'reporte-ventas-diario-8am': {
-        'task':     'ventas.reporte_ventas_diario',
-        'schedule': crontab(hour=8, minute=0),
-        'options':  {'queue': 'erp_django'},
-    },
-
+SENDGRID_API_KEY = env('SENDGRID_API_KEY', default='')
+ANYMAIL = {
+    'SENDGRID_API_KEY': SENDGRID_API_KEY,
 }
-
-TAREAS_TOKEN = env('TAREAS_TOKEN', default='')
 
 # ── JAZZMIN — Personalización del admin con Fable 5 AzulERP ───────────────
 JAZZMIN_SETTINGS = {
@@ -437,7 +406,7 @@ ANYMAIL = {
 # core/settings.py — tareas programadas (W18)
 
 # Destinatarios del reporte diario (los mismos del administrador)
-REPORTE_VENTAS_DESTINATARIOS = ALERTA_STOCK_DESTINATARIOS
+
 
 # Zona horaria que usa Celery para interpretar crontab
 # (la guía original usaba CELERY_BEAT_TIMEZONE, que NO existe en Celery)
