@@ -25,7 +25,7 @@ urlpatterns = [
     path('', views.bienvenida, name='inicio'),
     path('admin/',      admin.site.urls),
     path('accounts/',   include('allauth.urls')),
-
+    path('tareas/', include('ventas.urls_tareas')),
     # API REST
     path('api/',        include((api_urlpatterns, 'api'))),
     path('api/auth/token/', obtain_auth_token, name='api_token'),

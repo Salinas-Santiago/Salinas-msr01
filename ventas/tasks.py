@@ -385,3 +385,38 @@ def _enviar_reporte_ventas(
         f'{settings.REPORTE_VENTAS_DESTINATARIOS}.'
     )
     return True
+
+def alertar_stock_tras_venta(umbral: int = 5, horas: int = 6) -> bool:
+    """Alerta de stock bajo disparada por una venta (Opción A).
+
+    Ejecuta verificar_stock_bajo y, si se envió la alerta, no vuelve a
+    enviar otra durante `horas` horas. Nunca rompe el flujo de la venta.
+
+    Returns:
+        True si se envió una alerta, False en cualquier otro caso.
+    """
+    from django.core.cache import cache
+
+    clave = 'alerta_stock_tras_venta'
+    if cache.get(clave):
+        return False                      # ya se alertó hace poco
+
+    try:
+        resultado = verificar_stock_bajo.apply(
+            kwargs={'umbral': umbral}
+        ).get()
+    except Exception as exc:
+        logger.error(f'[stock_tras_venta] Error: {exc}')
+        return False
+
+    if resultado.get('alerta_enviada'):
+        cache.set(clave, True, timeout=horas * 3600)
+        return True
+    return False
+
+from django.db import transaction
+from ventas.tasks import alertar_stock_tras_venta
+
+# ... aquí va tu código que descuenta el stock ...
+
+transaction.on_commit(alertar_stock_tras_venta)

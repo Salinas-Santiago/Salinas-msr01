@@ -263,6 +263,8 @@ CELERY_BEAT_SCHEDULE = {
 
 }
 
+TAREAS_TOKEN = env('TAREAS_TOKEN', default='')
+
 # ── JAZZMIN — Personalización del admin con Fable 5 AzulERP ───────────────
 JAZZMIN_SETTINGS = {
     # Identidad
