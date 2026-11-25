@@ -465,3 +465,23 @@ CELERY_TASK_DEFAULT_QUEUE = 'erp_django'
 # En desarrollo con tests se ejecuta sincrónicamente si se activa el flag
 CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_EAGER_PROPAGATES = True
+
+# core/settings.py
+from datetime import timedelta
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'verificar-stock-bajo-cada-hora': {
+        'task': 'ventas.verificar_stock_bajo',
+        'schedule': timedelta(hours=1),
+        'args': (5,),
+        'options': {'queue': 'erp_django'},
+    },
+    'reporte-ventas-diario-8am': {
+        'task': 'ventas.reporte_ventas_diario',
+        'schedule': crontab(hour=8, minute=0),
+        'options': {'queue': 'erp_django'},
+    },
+}
+
+CELERY_BEAT_TIMEZONE = TIME_ZONE

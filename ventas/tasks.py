@@ -5,7 +5,7 @@
 import logging
 from decimal import Decimal
 from datetime import timedelta
-
+from django.template.loader import render_to_string
 from celery import shared_task
 from django.conf import settings
 from django.core.cache import cache
@@ -259,148 +259,73 @@ def alertar_stock_tras_venta():
 # W18: REPORTE DIARIO DE VENTAS
 # ============================================================
 
+# ventas/tasks.py — Añadir al final del archivo
+
 @shared_task(
     bind=True,
-    name="ventas.reporte_ventas_diario",
+    max_retries=2,
+    name='ventas.reporte_ventas_diario'
 )
-def reporte_ventas_diario(self, dias_atras=0):
-    from ventas.models import Pedido, Venta, DetalleVenta
+def reporte_ventas_diario(self) -> dict:
+    """Calcula métricas diarias mediante SQL y envía un reporte por correo al administrador."""
+    from decimal import Decimal
+    from django.db.models import DecimalField, ExpressionWrapper, F, Sum
+    from django.utils import timezone
+    from configuracion.models import ConfiguracionERP
+    from ventas.models import DetalleVenta, Pedido
 
-    fecha = timezone.localdate() - timedelta(days=dias_atras)
+    hoy = timezone.localdate()
+    config = ConfiguracionERP.get_instance()
 
-    # Pedidos pagados del día
-    pedidos = Pedido.objects.filter(estado="pagado")
+    pedidos_hoy = Pedido.objects.filter(fecha_pedido__date=hoy, estado='pagado')
+    total_pedidos = pedidos_hoy.count()
+    total_facturado = pedidos_hoy.aggregate(total=Sum('total_pagado'))['total'] or Decimal('0.00')
 
-    campos_pedido = {f.name for f in Pedido._meta.get_fields()}
-
-    campo_fecha_pedido = next(
-        (
-            nombre
-            for nombre in (
-                "fecha",
-                "fecha_creacion",
-                "created_at",
-                "fecha_pedido",
+    top_productos = list(
+        DetalleVenta.objects.filter(venta__fecha__date=hoy)
+        .values(nombre=F('producto__nombre'))
+        .annotate(
+            unidades=Sum('cantidad'),
+            ingreso=Sum(
+                ExpressionWrapper(
+                    F('cantidad') * F('precio_unitario'),
+                    output_field=DecimalField(max_digits=12, decimal_places=2)
+                )
             )
-            if nombre in campos_pedido
-        ),
-        None,
-    )
-
-    if campo_fecha_pedido:
-        campo = getattr(Pedido, campo_fecha_pedido).field
-
-        if campo.get_internal_type() == "DateTimeField":
-            pedidos = pedidos.filter(
-                **{f"{campo_fecha_pedido}__date": fecha}
-            )
-        else:
-            pedidos = pedidos.filter(
-                **{campo_fecha_pedido: fecha}
-            )
-
-    total_pedidos = pedidos.count()
-
-    total_facturado = pedidos.aggregate(
-        total=Sum("total_pagado")
-    )["total"] or Decimal("0.00")
-
-    # Ventas del día
-    ventas = Venta.objects.all()
-
-    campos_venta = {f.name for f in Venta._meta.get_fields()}
-
-    campo_fecha_venta = next(
-        (
-            nombre
-            for nombre in (
-                "fecha",
-                "fecha_venta",
-                "created_at",
-                "fecha_creacion",
-            )
-            if nombre in campos_venta
-        ),
-        None,
-    )
-
-    if campo_fecha_venta:
-        campo = getattr(Venta, campo_fecha_venta).field
-
-        if campo.get_internal_type() == "DateTimeField":
-            ventas = ventas.filter(
-                **{f"{campo_fecha_venta}__date": fecha}
-            )
-        else:
-            ventas = ventas.filter(
-                **{campo_fecha_venta: fecha}
-            )
-
-    detalles = DetalleVenta.objects.filter(venta__in=ventas)
-
-    productos_acumulados = {}
-
-    for detalle in detalles.select_related("producto"):
-        producto_id = detalle.producto_id
-        nombre = detalle.producto.nombre
-
-        if producto_id not in productos_acumulados:
-            productos_acumulados[producto_id] = {
-                "nombre": nombre,
-                "unidades": 0,
-            }
-
-        productos_acumulados[producto_id]["unidades"] += detalle.cantidad
-
-    top_productos = sorted(
-        productos_acumulados.values(),
-        key=lambda item: item["unidades"],
-        reverse=True,
-    )[:10]
-
-    fecha_str = fecha.strftime("%d/%m/%Y")
-
-    asunto = f"Reporte diario de ventas - {fecha_str}"
-
-    mensaje = (
-        f"Reporte de ventas del {fecha_str}\n\n"
-        f"Pedidos pagados: {total_pedidos}\n"
-        f"Total facturado: ${total_facturado:.2f}\n\n"
-        "Productos más vendidos:\n"
-    )
-
-    if top_productos:
-        for producto in top_productos:
-            mensaje += (
-                f"- {producto['nombre']}: "
-                f"{producto['unidades']} unidades\n"
-            )
-    else:
-        mensaje += "No hubo productos vendidos.\n"
-
-    destinatarios = getattr(
-        settings,
-        "REPORTE_VENTAS_DESTINATARIOS",
-        [],
-    )
-
-    if destinatarios:
-        send_mail(
-            asunto,
-            mensaje,
-            settings.DEFAULT_FROM_EMAIL,
-            destinatarios,
-            fail_silently=False,
         )
-
-    logger.info(
-        "[Celery] Reporte diario generado para %s",
-        fecha_str,
+        .order_by('-ingreso')[:5]
     )
+
+    if settings.ADMINS:
+        contexto = {
+            'fecha': hoy.strftime('%d/%m/%Y'),
+            'config': config,
+            'total_pedidos': total_pedidos,
+            'total_facturado': total_facturado,
+            'top_productos': top_productos,
+        }
+
+        asunto = f"Reporte de Ventas {hoy.strftime('%d/%m/%Y')} — {config.nombre_empresa}"
+        texto_plano = render_to_string('emails/reporte_ventas.txt', contexto)
+        html_body = render_to_string('emails/reporte_ventas.html', contexto)
+
+        _, admin_email = settings.ADMINS[0]
+        correo = EmailMultiAlternatives(
+            subject=asunto,
+            body=texto_plano,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[admin_email]
+        )
+        correo.attach_alternative(html_body, 'text/html')
+        try:
+            correo.send()
+            logger.info(f"[reporte_diario] Reporte enviado a {admin_email}.")
+        except Exception as exc:
+            logger.error(f"[reporte_diario] Error enviando reporte: {exc}")
 
     return {
-        "fecha": fecha_str,
-        "total_pedidos": total_pedidos,
-        "total_facturado": str(total_facturado),
-        "top_productos": top_productos,
+        'fecha': str(hoy),
+        'total_pedidos': total_pedidos,
+        'total_facturado': str(total_facturado),
+        'top_productos': top_productos,
     }

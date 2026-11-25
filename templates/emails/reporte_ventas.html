@@ -1,82 +1,58 @@
-{% load l10n %}<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reporte de ventas — {{ fecha }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #F5F7FA; color: #1A1A2E; padding: 20px; }
+        .card { max-width: 600px; margin: 0 auto; background: #FFFFFF; border-radius: 8px; border-top: 5px solid #0A2342; padding: 25px; }
+        .title { font-size: 20px; font-weight: bold; color: #0A2342; margin-bottom: 10px; }
+        .kpi-grid { display: flex; gap: 15px; margin: 20px 0; }
+        .kpi-box { flex: 1; background: #E8F0FB; border-radius: 6px; padding: 15px; text-align: center; }
+        .kpi-val { font-size: 20px; font-weight: bold; color: #B8860B; }
+        .table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .table th { background: #0A2342; color: #FFFFFF; padding: 8px; font-size: 12px; }
+        .table td { padding: 8px; border-bottom: 1px solid #E8F0FB; font-size: 13px; }
+    </style>
 </head>
-<body style="margin:0;padding:0;background-color:#F5F7FA;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1A1A2E;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F7FA;">
-<tr><td align="center" style="padding:24px 12px;">
+<body>
+    <div class="card">
+        <div class="title">📊 Reporte Diario de Ventas — {{ fecha }}</div>
+        <p>{{ config.nombre_empresa }}</p>
+        
+        <div class="kpi-grid">
+            <div class="kpi-box">
+                <div class="kpi-val">{{ total_pedidos }}</div>
+                <div>Pedidos Hoy</div>
+            </div>
+            <div class="kpi-box">
+                <div class="kpi-val">${{ total_facturado }}</div>
+                <div>Facturado Hoy</div>
+            </div>
+        </div>
 
-  <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;background-color:#FFFFFF;border:1px solid #C8D8EC;">
-
-    <!-- ENCABEZADO -->
-    <tr><td style="background-color:#0A2342;padding:26px 32px;border-bottom:4px solid #B8860B;">
-      <div style="color:#D4AF37;font-size:20px;font-weight:bold;">📊 Reporte de ventas del día</div>
-      <div style="color:#DDE6F2;font-size:13px;margin-top:4px;">{{ config.nombre_empresa }} · {{ fecha }}</div>
-    </td></tr>
-
-    <!-- CUERPO -->
-    <tr><td style="padding:26px 32px;">
-
-      <!-- KPIs -->
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
-        <tr>
-          <td width="50%" align="center" style="background-color:#E8F0FB;padding:16px;">
-            <div style="font-size:24px;font-weight:bold;color:#0A2342;">{{ total_pedidos }}</div>
-            <div style="font-size:12px;color:#5A6A7E;text-transform:uppercase;margin-top:3px;">Pedidos pagados</div>
-          </td>
-          <td width="50%" align="center" style="background-color:#E8F0FB;padding:16px;border-left:8px solid #FFFFFF;">
-            <div style="font-size:24px;font-weight:bold;color:#B8860B;">${{ total_facturado|unlocalize }}</div>
-            <div style="font-size:12px;color:#5A6A7E;text-transform:uppercase;margin-top:3px;">Total facturado</div>
-          </td>
-        </tr>
-      </table>
-
-      {% if top_productos %}
-      <p style="margin:0 0 8px 0;font-weight:bold;color:#0A2342;">
-        Top {{ top_productos|length }} productos del día
-      </p>
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:8px 0 16px 0;">
-        <tr>
-          <th align="left"  style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:11px;text-transform:uppercase;">#</th>
-          <th align="left"  style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:11px;text-transform:uppercase;">Producto</th>
-          <th align="right" style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:11px;text-transform:uppercase;">Unidades</th>
-          <th align="right" style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:11px;text-transform:uppercase;">Ingreso</th>
-        </tr>
-        {% for prod in top_productos %}
-        <tr>
-          <td style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:13px;">{{ forloop.counter }}</td>
-          <td style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:13px;">{{ prod.nombre }}</td>
-          <td align="right" style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:13px;">{{ prod.unidades }}</td>
-          <td align="right" style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:13px;">${{ prod.ingreso|unlocalize }}</td>
-        </tr>
-        {% endfor %}
-      </table>
-      {% else %}
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;">
-        <tr><td align="center" style="background-color:#FDF8E8;border:1px solid #B8860B;padding:16px;color:#5A6A7E;font-size:14px;">
-          Sin productos vendidos registrados en este día.
-        </td></tr>
-      </table>
-      {% endif %}
-
-      <p style="margin:12px 0 0 0;color:#5A6A7E;font-size:12px;">
-        Panel de administración:
-        <a href="{{ url_admin }}" style="color:#0A2342;">{{ url_admin }}</a>
-      </p>
-    </td></tr>
-
-    <!-- PIE -->
-    <tr><td align="center" style="background-color:#F5F7FA;border-top:1px solid #C8D8EC;padding:14px 32px;font-size:11px;color:#5A6A7E;">
-      <div>Generado automáticamente por ERP Django</div>
-      <div style="margin-top:3px;">{{ config.nombre_empresa }}</div>
-    </td></tr>
-
-  </table>
-
-</td></tr>
-</table>
+        {% if top_productos %}
+        <h3>Top Productos Vendidos Hoy</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th style="text-align:right;">Unidades</th>
+                    <th style="text-align:right;">Ingreso</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in top_productos %}
+                <tr>
+                    <td>{{ p.nombre }}</td>
+                    <td style="text-align:right;">{{ p.unidades }}</td>
+                    <td style="text-align:right;">${{ p.ingreso }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:#5A6A7E;">Sin ventas registradas durante el día de hoy.</p>
+        {% endif %}
+    </div>
 </body>
 </html>
