@@ -1,0 +1,82 @@
+{% load l10n %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reporte de ventas — {{ fecha }}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F5F7FA;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#1A1A2E;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F7FA;">
+<tr><td align="center" style="padding:24px 12px;">
+
+  <table role="presentation" width="640" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:640px;background-color:#FFFFFF;border:1px solid #C8D8EC;">
+
+    <!-- ENCABEZADO -->
+    <tr><td style="background-color:#0A2342;padding:26px 32px;border-bottom:4px solid #B8860B;">
+      <div style="color:#D4AF37;font-size:20px;font-weight:bold;">📊 Reporte de ventas del día</div>
+      <div style="color:#DDE6F2;font-size:13px;margin-top:4px;">{{ config.nombre_empresa }} · {{ fecha }}</div>
+    </td></tr>
+
+    <!-- CUERPO -->
+    <tr><td style="padding:26px 32px;">
+
+      <!-- KPIs -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;">
+        <tr>
+          <td width="50%" align="center" style="background-color:#E8F0FB;padding:16px;">
+            <div style="font-size:24px;font-weight:bold;color:#0A2342;">{{ total_pedidos }}</div>
+            <div style="font-size:12px;color:#5A6A7E;text-transform:uppercase;margin-top:3px;">Pedidos pagados</div>
+          </td>
+          <td width="50%" align="center" style="background-color:#E8F0FB;padding:16px;border-left:8px solid #FFFFFF;">
+            <div style="font-size:24px;font-weight:bold;color:#B8860B;">${{ total_facturado|unlocalize }}</div>
+            <div style="font-size:12px;color:#5A6A7E;text-transform:uppercase;margin-top:3px;">Total facturado</div>
+          </td>
+        </tr>
+      </table>
+
+      {% if top_productos %}
+      <p style="margin:0 0 8px 0;font-weight:bold;color:#0A2342;">
+        Top {{ top_productos|length }} productos del día
+      </p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:8px 0 16px 0;">
+        <tr>
+          <th align="left"  style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:11px;text-transform:uppercase;">#</th>
+          <th align="left"  style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:11px;text-transform:uppercase;">Producto</th>
+          <th align="right" style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:11px;text-transform:uppercase;">Unidades</th>
+          <th align="right" style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:11px;text-transform:uppercase;">Ingreso</th>
+        </tr>
+        {% for prod in top_productos %}
+        <tr>
+          <td style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:13px;">{{ forloop.counter }}</td>
+          <td style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:13px;">{{ prod.nombre }}</td>
+          <td align="right" style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:13px;">{{ prod.unidades }}</td>
+          <td align="right" style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:13px;">${{ prod.ingreso|unlocalize }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0;">
+        <tr><td align="center" style="background-color:#FDF8E8;border:1px solid #B8860B;padding:16px;color:#5A6A7E;font-size:14px;">
+          Sin productos vendidos registrados en este día.
+        </td></tr>
+      </table>
+      {% endif %}
+
+      <p style="margin:12px 0 0 0;color:#5A6A7E;font-size:12px;">
+        Panel de administración:
+        <a href="{{ url_admin }}" style="color:#0A2342;">{{ url_admin }}</a>
+      </p>
+    </td></tr>
+
+    <!-- PIE -->
+    <tr><td align="center" style="background-color:#F5F7FA;border-top:1px solid #C8D8EC;padding:14px 32px;font-size:11px;color:#5A6A7E;">
+      <div>Generado automáticamente por ERP Django</div>
+      <div style="margin-top:3px;">{{ config.nombre_empresa }}</div>
+    </td></tr>
+
+  </table>
+
+</td></tr>
+</table>
+</body>
+</html>

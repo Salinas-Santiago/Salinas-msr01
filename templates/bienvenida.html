@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Inicio{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero { text-align: center; padding: 3.2rem 0 2.2rem; position: relative; }
+    .hero-kicker {
+        font-family: 'Oswald', sans-serif; letter-spacing: .45em; font-size: .8rem;
+        color: var(--clr-sky); text-transform: uppercase; margin-bottom: .6rem;
+        animation: kick 3s ease-in-out infinite alternate;
+    }
+    @keyframes kick { from { opacity: .55; } to { opacity: 1; text-shadow: 0 0 12px rgba(255,140,30,.8); } }
+    .hero-title {
+        font-family: 'Oswald', sans-serif !important; font-weight: 700;
+        font-size: clamp(3.2rem, 11vw, 7.5rem); line-height: 1; margin: 0;
+        letter-spacing: .1em; text-transform: uppercase;
+        background: linear-gradient(180deg, #fff6cf 0%, #ffd23f 26%, #ff7a14 58%, #d4260b 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+        filter: drop-shadow(0 0 18px rgba(255,106,0,.55));
+        animation: titleFlame 2.6s ease-in-out infinite alternate;
+    }
+    .hero-title span { display: block; font-size: .62em; letter-spacing: .32em; }
+    @keyframes titleFlame {
+        from { filter: drop-shadow(0 0 10px rgba(255,106,0,.45)) brightness(.95); }
+        to   { filter: drop-shadow(0 0 28px rgba(255,150,20,.85)) brightness(1.12); }
+    }
+    .hero-sub { color: var(--clr-muted); font-size: 1.05rem; margin: 1rem 0 1.2rem; }
+    .hero-cta { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap; margin-top: 1.4rem; }
+
+    .mod-card {
+        display: block; position: relative; overflow: hidden; height: 100%;
+        background: var(--clr-surface); backdrop-filter: blur(6px);
+        border: 1px solid var(--clr-border); border-radius: 12px;
+        padding: 1.4rem 1.2rem 1.5rem; text-align: center; color: var(--clr-text);
+        transition: transform .25s, box-shadow .25s, border-color .25s;
+    }
+    .mod-card:hover { transform: translateY(-5px); border-color: var(--clr-gold);
+        box-shadow: 0 10px 34px rgba(255,90,10,.30), 0 0 0 1px rgba(255,122,26,.4); color: var(--clr-text); text-shadow: none; }
+    .mod-card .num {
+        position: absolute; top: .55rem; left: .8rem; font-family: 'Oswald', sans-serif;
+        font-size: .8rem; letter-spacing: .15em; color: var(--clr-gold); opacity: .8;
+    }
+    .mod-card .ico { font-size: 2.2rem; margin-bottom: .4rem; transition: transform .25s; }
+    .mod-card:hover .ico { transform: scale(1.2) rotate(-6deg); filter: drop-shadow(0 0 10px rgba(255,140,30,.9)); }
+    .mod-card strong {
+        font-family: 'Oswald', sans-serif; font-weight: 600; letter-spacing: .12em;
+        text-transform: uppercase; font-size: 1.1rem; color: var(--clr-amber);
+    }
+    [data-theme="light"] .mod-card strong { color: var(--clr-gold); }
+    .mod-card p { color: var(--clr-muted); font-size: .85rem; margin: .35rem 0 0; }
+    .mod-card::after {                 /* llama que sube al hacer hover */
+        content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 4px;
+        background: linear-gradient(90deg, #d4260b, #ff7a00, #ffd23f, #ff7a00, #d4260b);
+        background-size: 200% 100%; animation: heat 2.5s linear infinite;
+        transform: scaleY(1); transform-origin: bottom; transition: height .3s;
+    }
+    .mod-card:hover::after { height: 100%; opacity: .14; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-kicker">Sistema de gestión empresarial · UTEC Celaya</div>
+    <h1 class="hero-title">ERP <span>Django</span></h1>
+    <p class="hero-sub">Inventario, clientes, proveedores y ventas, en un solo escenario.</p>
+    <div class="d-flex justify-content-center gap-2 flex-wrap">
+        <span class="badge-erp-gold">Django 4.2 LTS</span>
+        <span class="badge-erp-gold">Python 3.11</span>
+        <span class="badge-erp-gold">Fable 5 Inferno</span>
+    </div>
+    <div class="hero-cta">
+        <a href="/productos/" class="btn-erp-gold">Entrar al sistema</a>
+        <button type="button" class="btn-erp-primary" onclick="window.erpBoom && window.erpBoom()">💥 Pirotecnia</button>
+    </div>
+</section>
+
+<div class="row g-3 mt-1">
+    {% for m in modulos %}
+    <div class="col-md-4">
+        <a href="{{ m.url }}" class="mod-card">
+            <span class="num">{{ forloop.counter|stringformat:"02d" }}</span>
+            <div class="ico">{{ m.icono }}</div>
+            <strong>{{ m.nombre }}</strong>
+            <p>{{ m.descripcion }}</p>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

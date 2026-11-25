@@ -1,0 +1,30 @@
+name: Tareas programadas ERP
+
+on:
+  schedule:
+    - cron: '0 14 * * *'   # 14:00 UTC = 8:00 AM Ciudad de México → reporte
+    - cron: '5 14 * * *'   # 14:05 UTC = 8:05 AM Ciudad de México → stock
+  workflow_dispatch:        # permite ejecutarlo a mano desde GitHub
+    inputs:
+      tarea:
+        description: 'Tarea a ejecutar'
+        type: choice
+        options:
+          - reporte
+          - stock
+
+jobs:
+  ejecutar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Llamar al ERP en Render
+        env:
+          RENDER_URL:   ${{ secrets.RENDER_URL }}
+          TAREAS_TOKEN: ${{ secrets.TAREAS_TOKEN }}
+          TAREA: ${{ github.event.inputs.tarea || (github.event.schedule == '0 14 * * *' && 'reporte' || 'stock') }}
+        run: |
+          curl --fail-with-body --silent --show-error \
+               --max-time 180 --retry 2 --retry-delay 20 \
+               -X POST \
+               -H "X-Tareas-Token: $TAREAS_TOKEN" \
+               "$RENDER_URL/tareas/$TAREA/"

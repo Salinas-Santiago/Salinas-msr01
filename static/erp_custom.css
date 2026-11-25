@@ -1,0 +1,189 @@
+/* static/erp_custom.css — Fable 5 INFERNO
+   Reemplaza COMPLETO el archivo de W02 + W06.
+   Lo carga Jazzmin (custom_css) en /admin/.  El sitio público usa base.html.
+   Fondo animado del admin = 100 % CSS (sin JS): cielo en brasa, lenguas de
+   fuego en la base, chispas que suben y pulso de calor.                    */
+
+/* ───────── Utilidades (W02) ───────── */
+.erp-module-card { transition: transform .2s, box-shadow .2s; cursor: pointer; }
+.erp-module-card:hover { transform: translateY(-3px); box-shadow: 0 6px 26px rgba(255,90,10,.25); }
+.text-gold   { color: #ff7a1a !important; }
+.text-navy   { color: #1b0d09 !important; }
+.bg-navy     { background: #1b0d09 !important; }
+.border-gold { border-color: #ff7a1a !important; }
+.font-mono   { font-family: 'JetBrains Mono', Consolas, monospace !important; font-size: .9em; }
+
+/* ───────── ADMIN: fondo animado ───────── */
+html { background: #050202 !important; }
+body, .wrapper, .content-wrapper, .content, .login-page, .main-footer {
+    background: transparent !important;
+}
+body { color: #f3e3d4; }
+
+/* Capa 1: cielo + calor + lenguas de fuego */
+body::before {
+    content: ''; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+        /* lenguas de fuego (se desplazan y parpadean) */
+        radial-gradient(ellipse 46px 150px at 50% 100%, rgba(255,150,30,.55), transparent 70%) 0 100% / 130px 240px repeat-x,
+        radial-gradient(ellipse 60px 210px at 50% 100%, rgba(255,90,10,.45),  transparent 70%) 40px 100% / 210px 330px repeat-x,
+        radial-gradient(ellipse 34px 110px at 50% 100%, rgba(255,210,63,.40), transparent 70%) 20px 100% / 90px 190px repeat-x,
+        /* resplandor general */
+        radial-gradient(120% 70% at 50% 108%, rgba(255,96,10,.50) 0%, rgba(190,40,8,.28) 34%, transparent 64%),
+        linear-gradient(#030101 0%, #120503 55%, #2b0d05 100%);
+    animation: erpFlames 3.2s ease-in-out infinite alternate;
+}
+@keyframes erpFlames {
+    0%   { background-position: 0 100%, 40px 100%, 20px 100%, 0 0, 0 0; filter: brightness(.9); }
+    100% { background-position: 18px 96%, 70px 94%, 4px 97%, 0 0, 0 0; filter: brightness(1.15); }
+}
+
+/* Capa 2: chispas ascendentes (cada tile sube exactamente su altura = bucle perfecto) */
+body::after {
+    content: ''; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .85;
+    background-image:
+        radial-gradient(2px   2px   at 20px  80px,  #ffb347, transparent 60%),
+        radial-gradient(1.5px 1.5px at 90px  200px, #ff7a14, transparent 60%),
+        radial-gradient(2px   2px   at 160px 40px,  #ffd23f, transparent 60%),
+        radial-gradient(1px   1px   at 230px 140px, #ff9a3d, transparent 60%),
+        radial-gradient(2.5px 2.5px at 300px 260px, #ff6a00, transparent 60%);
+    background-size: 320px 320px, 380px 380px, 450px 450px, 270px 270px, 520px 520px;
+    animation: erpEmbers 14s linear infinite;
+}
+@keyframes erpEmbers {
+    from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+    to   { background-position: 30px -320px, -40px -380px, 50px -450px, -20px -270px, 60px -520px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    body::before, body::after { animation: none; }
+}
+
+/* ───────── ADMIN: navbar y sidebar ───────── */
+.main-header.navbar {
+    background: rgba(14,7,5,.92) !important; backdrop-filter: blur(8px);
+    border-bottom: 0 !important; position: relative;
+}
+.main-header.navbar::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -3px; height: 3px;
+    background: linear-gradient(90deg,#d4260b,#ff7a00,#ffd23f,#ff7a00,#d4260b);
+    background-size: 200% 100%; animation: erpHeat 3s linear infinite;
+    box-shadow: 0 0 14px rgba(255,120,0,.75);
+}
+@keyframes erpHeat { to { background-position: -200% 0; } }
+.main-header .nav-link, .main-header .navbar-nav .nav-link { color: rgba(255,240,225,.88) !important; }
+.main-header .nav-link:hover { color: #ffc13b !important; }
+
+.main-sidebar, .sidebar {
+    background: linear-gradient(#0e0705, #1b0d09) !important;
+    border-right: 1px solid #4d2515;
+}
+.brand-link { border-bottom: 1px solid #ff7a1a !important; }
+.brand-text {
+    color: #ffc13b !important; font-weight: 700 !important; letter-spacing: .1em;
+    text-shadow: 0 0 12px rgba(255,120,0,.7);
+}
+.nav-sidebar .nav-link { color: rgba(255,235,220,.85) !important; transition: background .2s, box-shadow .2s; }
+.nav-sidebar .nav-link:hover {
+    background-color: #7a1a08 !important; color: #fff !important;
+    box-shadow: 0 0 14px rgba(255,90,10,.45);
+}
+.nav-sidebar .nav-link.active,
+.accent-navy .nav-sidebar .nav-link.active, .accent-orange .nav-sidebar .nav-link.active {
+    background: linear-gradient(90deg,#ffc13b,#ff7a1a) !important;
+    color: #1b0d09 !important; font-weight: 600; box-shadow: 0 0 16px rgba(255,122,26,.55);
+}
+.nav-sidebar .nav-link.active p, .nav-sidebar .nav-link.active i { color: #1b0d09 !important; }
+
+/* ───────── ADMIN: contenido ───────── */
+a { color: #ff9a3d; }
+a:hover { color: #ffc13b; }
+h1, h2, h3, h4, h5, h6, .content-header h1 { color: #ffc13b; letter-spacing: .04em; }
+label, .col-form-label, p, .text-muted, small, .help-block, .help { color: #d9c2b0 !important; }
+.breadcrumb { background: transparent !important; }
+.breadcrumb-item.active { color: #b99d88 !important; }
+
+.card, .module, .inline-group, #changelist-filter, .login-box .card {
+    background: rgba(21,11,8,.84) !important; backdrop-filter: blur(6px);
+    border: 1px solid #4d2515 !important; color: #f7e9dc;
+    box-shadow: 0 6px 26px rgba(255,90,10,.12), 0 4px 16px rgba(0,0,0,.6);
+}
+.card-header, .module h2, .module caption {
+    background: linear-gradient(90deg,#4a1308,#1b0d09 70%) !important;
+    border-bottom: 2px solid #ff7a1a !important; color: #fff !important;
+    border-left: 5px solid #ff7a1a; text-transform: uppercase; letter-spacing: .08em;
+}
+.card-title { color: #fff !important; }
+
+.table, .results table, table { color: #f7e9dc !important; }
+.table thead th, .results thead th, thead th {
+    background: #1b0d09 !important; color: #ffd9b0 !important;
+    border-bottom: 3px solid #ff7a1a !important; border-top: 0 !important;
+    text-transform: uppercase; letter-spacing: .08em; font-size: .8rem;
+}
+.table td, .table th { border-color: #4d2515 !important; }
+.table-striped tbody tr:nth-of-type(odd), tr.row1 { background: rgba(255,122,40,.05) !important; }
+tr.row2 { background: transparent !important; }
+.table-hover tbody tr:hover, #result_list tbody tr:hover { background: rgba(255,122,26,.14) !important; }
+
+.form-control, .custom-select, select, textarea,
+input[type=text], input[type=password], input[type=email], input[type=number],
+input[type=url], input[type=date], input[type=time], input[type=search] {
+    background: rgba(10,5,3,.7) !important; color: #f7e9dc !important;
+    border: 1.5px solid #4d2515 !important; border-radius: 8px;
+}
+.form-control:focus, select:focus, textarea:focus, input:focus {
+    border-color: #ff7a1a !important;
+    box-shadow: 0 0 0 3px rgba(255,122,26,.25), 0 0 16px rgba(255,90,10,.25) !important;
+}
+option { background: #1b0d09; color: #f7e9dc; }
+input[type=checkbox], input[type=radio] { accent-color: #ff7a1a; }
+
+.btn-primary, .btn-success, input[type=submit], .button.default, .submit-row input {
+    background: linear-gradient(180deg,#ffc13b,#ff7a1a) !important; color: #1b0d09 !important;
+    border: 0 !important; font-weight: 700; transition: box-shadow .2s, transform .2s;
+}
+.btn-primary:hover, .btn-success:hover, input[type=submit]:hover {
+    box-shadow: 0 0 18px rgba(255,122,26,.7); transform: translateY(-1px);
+}
+.btn-secondary, .btn-default { background: #2a120b !important; color: #ffd9b0 !important; border: 1px solid #ff7a1a !important; }
+.btn-danger, .deletelink-box a { background: linear-gradient(180deg,#ff6a55,#c0392b) !important; color: #fff !important; border: 0 !important; }
+.btn-info, .btn-warning { background: linear-gradient(180deg,#ffd23f,#e07b00) !important; color: #1b0d09 !important; border: 0 !important; }
+
+.page-link { background: #1b0d09 !important; border-color: #4d2515 !important; color: #ffb347 !important; }
+.page-item.active .page-link { background: #ff7a1a !important; border-color: #ff7a1a !important; color: #1b0d09 !important; }
+.paginator, .paginator a:link, .paginator a:visited { background: transparent !important; color: #ffb347 !important; }
+.callout, .alert { background: rgba(255,140,40,.10) !important; border: 1px solid #4d2515; border-left: 5px solid #ff7a1a; color: #f7e9dc !important; }
+.alert-danger, .errornote { background: rgba(255,90,69,.12) !important; border-left-color: #ff5a45 !important; color: #ffb3a8 !important; }
+.nav-tabs .nav-link.active { background: #1b0d09 !important; color: #ffc13b !important; border-color: #ff7a1a #4d2515 transparent !important; }
+.nav-tabs .nav-link { color: #d9c2b0 !important; }
+.dropdown-menu { background: #1b0d09 !important; border: 1px solid #4d2515; }
+.dropdown-item { color: #f7e9dc !important; }
+.dropdown-item:hover { background: #7a1a08 !important; }
+.select2-container--default .select2-selection--single,
+.select2-dropdown { background: #120a07 !important; border-color: #4d2515 !important; color: #f7e9dc !important; }
+.modal-content { background: #150b08 !important; border: 1px solid #4d2515; color: #f7e9dc; }
+
+/* ───────── ADMIN: footer ───────── */
+.main-footer {
+    background: rgba(14,7,5,.92) !important; color: rgba(255,230,210,.6) !important;
+    border-top: 2px solid #ff7a1a !important; box-shadow: 0 -6px 24px rgba(255,90,10,.18);
+}
+
+/* ───────── ADMIN: pantalla de login de Jazzmin ───────── */
+.login-page { min-height: 100vh; }
+.login-logo a, .login-logo b {
+    color: #ffc13b !important; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    text-shadow: 0 0 16px rgba(255,120,0,.85); animation: erpNeon 2.2s ease-in-out infinite alternate;
+}
+@keyframes erpNeon {
+    from { text-shadow: 0 0 6px rgba(255,120,0,.5); }
+    to   { text-shadow: 0 0 18px rgba(255,170,30,.95), 0 0 34px rgba(255,80,0,.5); }
+}
+.login-box .card { box-shadow: 0 0 60px rgba(255,90,10,.30), 0 4px 16px rgba(0,0,0,.6); }
+.login-card-body { background: transparent !important; color: #f7e9dc; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-track { background: #0b0504; }
+::-webkit-scrollbar-thumb { background: linear-gradient(#ff8a14,#9c240f); border-radius: 8px; border: 2px solid #0b0504; }
+::selection { background: #ff7a1a; color: #1b0d09; }

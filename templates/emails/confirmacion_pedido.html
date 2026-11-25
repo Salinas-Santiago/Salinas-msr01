@@ -1,0 +1,92 @@
+{% load l10n %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Confirmación de pedido {{ pedido.numero_pedido }}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F5F7FA;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#1A1A2E;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F7FA;">
+<tr><td align="center" style="padding:24px 12px;">
+
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background-color:#FFFFFF;border:1px solid #C8D8EC;">
+
+    <!-- ENCABEZADO -->
+    <tr><td style="background-color:#0A2342;padding:26px 32px;border-bottom:4px solid #B8860B;">
+      <div style="color:#D4AF37;font-size:22px;font-weight:bold;">✅ ¡Pago confirmado!</div>
+      <div style="color:#DDE6F2;font-size:13px;margin-top:4px;">{{ config.nombre_empresa }}</div>
+    </td></tr>
+
+    <!-- CUERPO -->
+    <tr><td style="padding:28px 32px;">
+      <p style="margin:0 0 14px 0;font-size:17px;color:#0A2342;">
+        Hola, <strong>{{ pedido.cliente.nombre }}</strong>:
+      </p>
+      <p style="margin:0 0 16px 0;color:#5A6A7E;">
+        Gracias por tu compra. Tu pedido ha sido confirmado y está siendo procesado.
+      </p>
+
+      <!-- Número y total -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:18px 0;">
+        <tr><td style="background-color:#E8F0FB;border-left:5px solid #0A2342;padding:16px 20px;">
+          <div style="font-size:20px;font-weight:bold;color:#0A2342;">Pedido {{ pedido.numero_pedido }}</div>
+          <div style="font-size:18px;font-weight:bold;color:#B8860B;margin-top:4px;">
+            Total pagado: ${{ pedido.total_pagado|unlocalize }}
+          </div>
+          <div style="color:#5A6A7E;font-size:13px;margin-top:6px;">
+            Fecha: {{ pedido.fecha_pedido|date:"d/m/Y H:i" }}
+          </div>
+        </td></tr>
+      </table>
+
+      <!-- Productos -->
+      {% if items %}
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;margin:18px 0;">
+        <tr>
+          <th align="left"  style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:12px;text-transform:uppercase;">Producto</th>
+          <th align="right" style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:12px;text-transform:uppercase;">Precio</th>
+          <th align="right" style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:12px;text-transform:uppercase;">Cant.</th>
+          <th align="right" style="background-color:#0A2342;color:#FFFFFF;padding:10px 14px;font-size:12px;text-transform:uppercase;">Subtotal</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+          <td style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:14px;">{{ item.nombre }}</td>
+          <td align="right" style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:14px;">${{ item.precio|unlocalize }}</td>
+          <td align="right" style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:14px;">{{ item.cantidad }}</td>
+          <td align="right" style="padding:9px 14px;border-bottom:1px solid #E8F0FB;font-size:14px;">${{ item.subtotal|unlocalize }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+          <td colspan="3" style="background-color:#FDF8E8;border-top:2px solid #B8860B;padding:12px 14px;font-weight:bold;">Total:</td>
+          <td align="right" style="background-color:#FDF8E8;border-top:2px solid #B8860B;padding:12px 14px;font-weight:bold;color:#B8860B;">${{ pedido.total_pagado|unlocalize }}</td>
+        </tr>
+      </table>
+      {% endif %}
+
+      <!-- Botón -->
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:24px 0;">
+        <tr><td align="center">
+          <a href="{{ url_pedido }}" style="display:inline-block;background-color:#B8860B;color:#FFFFFF;padding:12px 28px;text-decoration:none;font-weight:bold;font-size:15px;">
+            Ver detalle del pedido
+          </a>
+        </td></tr>
+      </table>
+
+      <p style="margin:8px 0 0 0;color:#5A6A7E;font-size:13px;">
+        Si tienes preguntas, contáctanos.<br>
+        Equipo de {{ config.nombre_empresa }}
+      </p>
+    </td></tr>
+
+    <!-- PIE -->
+    <tr><td align="center" style="background-color:#F5F7FA;border-top:1px solid #C8D8EC;padding:16px 32px;font-size:12px;color:#5A6A7E;">
+      <div>{{ config.nombre_empresa }}{% if config.rfc %} · RFC: {{ config.rfc }}{% endif %}</div>
+      <div style="margin-top:4px;">Este correo fue generado automáticamente. No responder directamente.</div>
+    </td></tr>
+
+  </table>
+
+</td></tr>
+</table>
+</body>
+</html>
