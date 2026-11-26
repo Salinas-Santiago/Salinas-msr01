@@ -1,0 +1,367 @@
+Creating test database for alias 'default'...
+Found 169 test(s).
+System check identified no issues (0 silenced).
+.............JAZZMIN_UI_TWEAKS['dark_mode_theme'] is deprecated and ignored. Use default_theme_mode='auto' (or 'light'/'dark') instead. All themes now support light/dark via data-bs-theme.
+.......................................................................E.........................TEMPLATES: ['productos/lista.html', 'base.html']
+.....................<style> block 1: Ignoring CSS properties xhtml2pdf does not implement: border-collapse
+....................No se pudo enviar el correo del pedido 1
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1314, in connect_check_health
+    sock = self._connect()
+           ^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 2055, in _connect
+    raise err
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 2034, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 127, in reconnect_on_error
+    yield
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 177, in _consume_from
+    self._pubsub.subscribe(key)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\client.py", line 1640, in subscribe
+    ret_val = self.execute_command("SUBSCRIBE", *new_channels.keys())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\client.py", line 1338, in execute_command
+    self.connection = self.connection_pool.get_connection()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\utils.py", line 377, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 4361, in get_connection
+    self.ensure_connection(connection)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 4378, in ensure_connection
+    connection.connect()
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1287, in connect
+    self.retry.call_with_retry(
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\retry.py", line 162, in call_with_retry
+    raise error
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\retry.py", line 142, in call_with_retry
+    return do()
+           ^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1288, in <lambda>
+    lambda: self.connect_check_health(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1341, in connect_check_health
+    raise conn_error from e
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1314, in connect_check_health
+    sock = self._connect()
+           ^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 2055, in _connect
+    raise err
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 2034, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\kombu\connection.py", line 535, in _reraise_as_library_errors
+    yield
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\app\base.py", line 798, in send_task
+    self.backend.on_task_call(P, task_id)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 373, in on_task_call
+    self.result_consumer.consume_from(task_id)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 169, in consume_from
+    return self.start(task_id)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 147, in start
+    self._consume_from(initial_task_id)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 176, in _consume_from
+    with self.reconnect_on_error():
+  File "contextlib.py", line 158, in __exit__
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 130, in reconnect_on_error
+    self._ensure(self._reconnect_pubsub, ())
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 384, in ensure
+    return retry_over_time(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\kombu\utils\functional.py", line 331, in retry_over_time
+    return fun(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 106, in _reconnect_pubsub
+    metas = self.backend.client.mget(self.subscribed_to)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\commands\core.py", line 4036, in mget
+    return self.execute_command("MGET", *args, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\client.py", line 957, in execute_command
+    return self._execute_command(*args, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\client.py", line 963, in _execute_command
+    conn = self.connection or pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\utils.py", line 377, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 4361, in get_connection
+    self.ensure_connection(connection)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 4378, in ensure_connection
+    connection.connect()
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1287, in connect
+    self.retry.call_with_retry(
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\retry.py", line 162, in call_with_retry
+    raise error
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\retry.py", line 142, in call_with_retry
+    return do()
+           ^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1288, in <lambda>
+    lambda: self.connect_check_health(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1341, in connect_check_health
+    raise conn_error from e
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\catalogo\views.py", line 312, in pago_exitoso
+    enviar_confirmacion_pedido.delay(pedido.pk)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\app\task.py", line 444, in delay
+    return self.apply_async(args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\app\task.py", line 594, in apply_async
+    return app.send_task(
+           ^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\app\base.py", line 796, in send_task
+    with P.connection._reraise_as_library_errors():
+  File "contextlib.py", line 158, in __exit__
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\kombu\connection.py", line 539, in _reraise_as_library_errors
+    raise ConnectionError(str(exc)) from exc
+kombu.exceptions.OperationalError: Error 10061 connecting to localhost:6379. No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión.
+.Destroying test database for alias 'default'...
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1314, in connect_check_health
+    sock = self._connect()
+           ^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 2055, in _connect
+    raise err
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 2034, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 127, in reconnect_on_error
+    yield
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 177, in _consume_from
+    self._pubsub.subscribe(key)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\client.py", line 1640, in subscribe
+    ret_val = self.execute_command("SUBSCRIBE", *new_channels.keys())
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\client.py", line 1338, in execute_command
+    self.connection = self.connection_pool.get_connection()
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\utils.py", line 377, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 4361, in get_connection
+    self.ensure_connection(connection)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 4378, in ensure_connection
+    connection.connect()
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1287, in connect
+    self.retry.call_with_retry(
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\retry.py", line 162, in call_with_retry
+    raise error
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\retry.py", line 142, in call_with_retry
+    return do()
+           ^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1288, in <lambda>
+    lambda: self.connect_check_health(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1341, in connect_check_health
+    raise conn_error from e
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 2034, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No se puede establecer una conexión ya que el equipo de destino denegó expresamente dicha conexión
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Temp_Workspace_ERP\manage.py", line 22, in <module>
+    main()
+  File "C:\Temp_Workspace_ERP\manage.py", line 18, in main
+    execute_from_command_line(sys.argv)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\management\__init__.py", line 442, in execute_from_command_line
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\management\__init__.py", line 436, in execute
+    self.fetch_command(subcommand).run_from_argv(self.argv)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\management\commands\test.py", line 24, in run_from_argv
+    super().run_from_argv(argv)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\management\base.py", line 412, in run_from_argv
+    self.execute(*args, **cmd_options)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\management\base.py", line 458, in execute
+    output = self.handle(*args, **options)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\management\commands\test.py", line 68, in handle
+    failures = test_runner.run_tests(test_labels)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\runner.py", line 1061, in run_tests
+    result = self.run_suite(suite)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\runner.py", line 983, in run_suite
+    return runner.run(suite)
+           ^^^^^^^^^^^^^^^^^
+  File "unittest\runner.py", line 217, in run
+  File "unittest\suite.py", line 84, in __call__
+  File "unittest\suite.py", line 122, in run
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\testcases.py", line 381, in __call__
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\testcases.py", line 416, in _setup_and_call
+    super().__call__(result)
+  File "unittest\case.py", line 678, in __call__
+  File "unittest\case.py", line 623, in run
+  File "unittest\case.py", line 579, in _callTestMethod
+  File "C:\Temp_Workspace_ERP\tests\test_w14_checkout.py", line 164, in test_pago_exitoso_vacia_carrito
+    self.client.get(
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\client.py", line 930, in get
+    response = super().get(path, data=data, secure=secure, headers=headers, **extra)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\client.py", line 457, in get
+    return self.generic(
+           ^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\client.py", line 609, in generic
+    return self.request(**r)
+           ^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\client.py", line 889, in request
+    response = self.handler(environ)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\test\client.py", line 176, in __call__
+    response = self.get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\base.py", line 140, in get_response
+    response = self._middleware_chain(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\utils\deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\whitenoise\middleware.py", line 123, in __call__
+    return self.get_response(request)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\utils\deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\utils\deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\utils\deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\utils\deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\utils\deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\utils\deprecation.py", line 134, in __call__
+    response = response or self.get_response(request)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\allauth\account\middleware.py", line 37, in middleware
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\catalogo\views.py", line 312, in pago_exitoso
+    enviar_confirmacion_pedido.delay(pedido.pk)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\app\task.py", line 444, in delay
+    return self.apply_async(args, kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\app\task.py", line 594, in apply_async
+    return app.send_task(
+           ^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\app\base.py", line 798, in send_task
+    self.backend.on_task_call(P, task_id)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 373, in on_task_call
+    self.result_consumer.consume_from(task_id)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 169, in consume_from
+    return self.start(task_id)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 147, in start
+    self._consume_from(initial_task_id)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 176, in _consume_from
+    with self.reconnect_on_error():
+  File "contextlib.py", line 158, in __exit__
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 130, in reconnect_on_error
+    self._ensure(self._reconnect_pubsub, ())
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 384, in ensure
+    return retry_over_time(
+           ^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\kombu\utils\functional.py", line 331, in retry_over_time
+    return fun(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\celery\backends\redis.py", line 106, in _reconnect_pubsub
+    metas = self.backend.client.mget(self.subscribed_to)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\commands\core.py", line 4036, in mget
+    return self.execute_command("MGET", *args, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\client.py", line 957, in execute_command
+    return self._execute_command(*args, **options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\client.py", line 963, in _execute_command
+    conn = self.connection or pool.get_connection()
+                              ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\utils.py", line 377, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 4361, in get_connection
+    self.ensure_connection(connection)
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 4378, in ensure_connection
+    connection.connect()
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1287, in connect
+    self.retry.call_with_retry(
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\retry.py", line 142, in call_with_retry
+    return do()
+           ^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1288, in <lambda>
+    lambda: self.connect_check_health(
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 1314, in connect_check_health
+    sock = self._connect()
+           ^^^^^^^^^^^^^^^
+  File "C:\Temp_Workspace_ERP\env_erp\Lib\site-packages\redis\connection.py", line 2051, in _connect
+    sock.close()
+  File "socket.py", line 499, in close
+  File "unittest\signals.py", line 36, in __call__
+KeyboardInterrupt
+^C

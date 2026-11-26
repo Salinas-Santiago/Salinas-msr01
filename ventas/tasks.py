@@ -32,7 +32,20 @@ def enviar_confirmacion_pedido(self, pedido_id: int) -> dict:
     try:
         pedido = Pedido.objects.select_related("cliente").get(pk=pedido_id)
 
-        # Evitar correos duplicados
+        # No enviar confirmaciones de pedidos que no estén pagados.
+        if pedido.estado != "pagado":
+            logger.warning(
+                "[Celery] Pedido %s no está pagado. Estado: %s",
+                pedido.numero_pedido,
+                pedido.estado,
+            )
+            return {
+                "estado": "skip",
+                "razon": "Pedido no pagado",
+                "pedido_id": pedido_id,
+            }
+
+        # Evitar correos repetidos cuando ya se confirmó el envío.
         if pedido.correo_enviado:
             logger.info(
                 "[Celery] Pedido %s ya tiene correo enviado.",
@@ -82,13 +95,21 @@ def enviar_confirmacion_pedido(self, pedido_id: int) -> dict:
         )
 
         correo.attach_alternative(html, "text/html")
-        correo.send(fail_silently=False)
+
+        # Comprobar que el backend haya aceptado al menos un envío.
+        enviados = correo.send(fail_silently=False)
+
+        if enviados != 1:
+            raise RuntimeError(
+                f"El backend no confirmó el envío del pedido "
+                f"{pedido.numero_pedido}. Resultado: {enviados}"
+            )
 
         pedido.correo_enviado = True
         pedido.save(update_fields=["correo_enviado"])
 
         logger.info(
-            "[Celery] Confirmación enviada para pedido %s",
+            "[Celery] Confirmación aceptada por el backend para pedido %s",
             pedido.numero_pedido,
         )
 
@@ -104,6 +125,7 @@ def enviar_confirmacion_pedido(self, pedido_id: int) -> dict:
             pedido_id,
         )
         raise self.retry(exc=exc)
+
 
 
 # ============================================================
@@ -329,3 +351,37 @@ def reporte_ventas_diario(self) -> dict:
         'total_facturado': str(total_facturado),
         'top_productos': top_productos,
     }
+
+
+@shared_task(name="ventas.probar_sendgrid")
+def probar_sendgrid(destinatario: str) -> dict:
+    """
+    Comprueba el envío de correo mediante Celery y SendGrid.
+    No modifica pedidos ni inventario.
+    """
+    try:
+        resultado = send_mail(
+            subject="Prueba Celery + SendGrid - ERP Django",
+            message=(
+                "El servicio de correo del ERP funciona correctamente.\n\n"
+                "Este mensaje fue enviado mediante una tarea de Celery."
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[destinatario],
+            fail_silently=False,
+        )
+
+        logger.info(
+            "[Celery] Prueba SendGrid enviada a %s. Resultado: %s",
+            destinatario,
+            resultado,
+        )
+
+        return {
+            "estado": "ok" if resultado == 1 else "sin_envio",
+            "resultado": resultado,
+        }
+
+    except Exception:
+        logger.exception("[Celery] Error en la prueba de SendGrid.")
+        raise

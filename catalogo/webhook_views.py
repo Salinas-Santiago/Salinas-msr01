@@ -88,30 +88,72 @@ def stripe_webhook(request) -> HttpResponse:
 
 # ── HANDLERS INTERNOS ──────────────────────────────────────────────────────
 
+
 def _manejar_pago_exitoso(payment_intent: dict) -> None:
+    """
+    Procesa un pago exitoso de Stripe.
+
+    Garantías:
+    - El descuento de inventario ocurre dentro de la transacción.
+    - El inventario solo se descuenta al pasar a pagado.
+    - Los eventos repetidos pueden volver a programar el correo.
+    - El correo se programa después de confirmar la transacción.
+    """
     pedido_id = _extraer_pedido_id(payment_intent)
+
     if pedido_id is None:
         return
 
     try:
-        pedido = Pedido.objects.get(pk=pedido_id)
+        with transaction.atomic():
+            pedido = (
+                Pedido.objects
+                .select_for_update()
+                .get(pk=pedido_id)
+            )
+
+            if pedido.estado in ('pendiente', 'cancelado'):
+                pedido.estado = 'pagado'
+                pedido.save(update_fields=['estado'])
+
+                logger.info(
+                    'Pedido %s actualizado a pagado.',
+                    pedido.numero_pedido
+                )
+
+                # Solo se descuenta al realizar esta transición.
+                _descontar_stock(pedido)
+
+            elif pedido.estado == 'pagado':
+                logger.info(
+                    'Pedido %s ya estaba pagado. '
+                    'No se vuelve a descontar inventario.',
+                    pedido.numero_pedido
+                )
+
+            else:
+                logger.warning(
+                    'Pedido %s recibió un pago exitoso, '
+                    'pero conserva el estado %s. '
+                    'No se modifica su estado ni se descuenta stock.',
+                    pedido.numero_pedido,
+                    pedido.estado
+                )
+
+            # Se ejecuta únicamente después de confirmar la transacción.
+            # Si Redis falla, la excepción permite que Stripe reintente.
+            transaction.on_commit(
+                lambda pedido_id=pedido.pk:
+                    enviar_confirmacion_pedido.delay(pedido_id)
+            )
+
     except Pedido.DoesNotExist:
-        logger.error(f'Webhook: Pedido {pedido_id} no encontrado en BD.')
+        logger.error(
+            'Webhook: Pedido %s no encontrado en BD.',
+            pedido_id
+        )
         return
 
-    if pedido.estado != 'pagado':
-        pedido.estado = 'pagado'
-        pedido.save(update_fields=['estado'])
-        logger.info(f'Pedido {pedido.numero_pedido} actualizado a "pagado".')
-        _descontar_stock(pedido)
-
-        # NUEVO W16: el webhook es la fuente más confiable para el correo
-        enviar_confirmacion_pedido.delay(pedido.pk)
-    else:
-        logger.info(
-            f'Pedido {pedido.numero_pedido} ya estaba pagado — '
-            f'idempotente, sin cambios.'
-        )
 
 
 def _manejar_pago_fallido(payment_intent: dict) -> None:
